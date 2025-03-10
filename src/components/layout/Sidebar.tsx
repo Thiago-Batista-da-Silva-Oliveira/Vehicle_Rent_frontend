@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { 
   Drawer, 
   List, 
@@ -23,6 +23,7 @@ import {
   Report as ReportIcon,
   Money as MoneyIcon,
 } from '@mui/icons-material';
+import useAuthStore from '../../store/authStore';
 
 interface SidebarProps {
   open: boolean;
@@ -37,19 +38,30 @@ interface NavigationItem {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
+  const { user } = useAuthStore();
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
-  
-  const mainNavigation: NavigationItem[] = [
-    { title: 'Dashboard', path: '/', icon: <DashboardIcon /> },
-    { title: 'Vehicles', path: '/vehicles', icon: <VehiclesIcon /> },
-    { title: 'Clients', path: '/clients', icon: <ClientsIcon /> },
-    { title: 'Calendar', path: '/calendar', icon: <CalendarIcon /> },
-    { title: 'Fine Management', path: '/fine_management', icon: <ReportIcon /> },
-    { title: 'Map', path: '/map', icon: <MapIcon /> },
-    { title: 'Collection', path: '/collection', icon: <MoneyIcon /> },
-  ];
+
+  const mainNavigation= useMemo<NavigationItem[]>(() => {
+    if (user?.role === 'master') {
+      return [
+        { title: 'Dashboard', path: '/', icon: <DashboardIcon /> },
+        { title: 'Users', path: '/users', icon: <ClientsIcon /> },
+      ]
+    }
+    else {
+      return [
+        { title: 'Dashboard', path: '/', icon: <DashboardIcon /> },
+        { title: 'Vehicles', path: '/vehicles', icon: <VehiclesIcon /> },
+        { title: 'Clients', path: '/clients', icon: <ClientsIcon /> },
+        { title: 'Calendar', path: '/calendar', icon: <CalendarIcon /> },
+        { title: 'Fine Management', path: '/fine_management', icon: <ReportIcon /> },
+        { title: 'Map', path: '/map', icon: <MapIcon /> },
+        { title: 'Collection', path: '/collection', icon: <MoneyIcon /> },
+      ]
+    }
+  }, [user?.role]);
   
   
   const supportNavigation: NavigationItem[] = [

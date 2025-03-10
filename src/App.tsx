@@ -1,10 +1,11 @@
-import React from 'react';
-import { BrowserRouter, useRoutes } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import publicRoutesConfig from './publicRoutes';
-import privateRoutesConfig from './privateRoutes';
-import { ThemeProvider } from './context/ThemeContext';
-import useAuthStore from './store/authStore';
+import React from "react";
+import { BrowserRouter, useRoutes } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import publicRoutesConfig from "./publicRoutes";
+import privateRoutesConfig from "./privateRoutes";
+import adminProtectedRoutesConfig from "./adminRoutes";
+import { ThemeProvider } from "./context/ThemeContext";
+import useAuthStore from "./store/authStore";
 
 // Create a react-query client
 const queryClient = new QueryClient({
@@ -19,8 +20,14 @@ const queryClient = new QueryClient({
 
 // Routes component using useRoutes hook
 const Routes = () => {
-  const {isAuthenticated} = useAuthStore();
-  const routes = useRoutes(isAuthenticated ? privateRoutesConfig : publicRoutesConfig);
+  const { isAuthenticated, user } = useAuthStore();
+  const routes = useRoutes(
+    isAuthenticated
+      ? user?.role === "master"
+        ? adminProtectedRoutesConfig
+        : privateRoutesConfig
+      : publicRoutesConfig
+  );
   return routes;
 };
 
