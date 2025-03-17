@@ -11,14 +11,11 @@ import {
 import {
   TrendingUp as TrendingUpIcon,
   DirectionsCar as CarIcon,
-  Person as PersonIcon,
-  Receipt as ReceiptIcon,
-  AttachMoney as MoneyIcon
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { mockResponse } from '../services/api';
-import { formatCurrency } from '../utils/formatters';
+import { mockResponse } from '../../../services/api';
+import { formatCurrency } from '../../../utils/formatters';
 
 // Mock data for dashboard stats
 const fetchDashboardStats = async () => {
@@ -118,7 +115,7 @@ const StatCard = ({ title, value, percentage, extra, icon }: {
   );
 };
 
-const Dashboard: React.FC = () => {
+export const DashboardPage: React.FC = () => {
   const theme = useTheme();
   const [visitorView, setVisitorView] = useState<'month' | 'week'>('week');
   const { data: stats, isLoading } = useQuery(['dashboardStats'], fetchDashboardStats);
@@ -245,5 +242,3 @@ const Dashboard: React.FC = () => {
     </Box>
   );
 };
-
-export default Dashboard

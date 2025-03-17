@@ -1,8 +1,8 @@
 import React from 'react';
 import { Navigate, RouteObject } from 'react-router-dom';
 import Layout from './components/layout/Layout';
-import Dashboard from './pages/Dashboard';
 import useAuthStore from './store/authStore';
+import { DashboardRoutes } from './pages/dashboard/routes';
 
 const Vehicles = React.lazy(() => import('./pages/Vehicles'));
 const Calendar = React.lazy(() => import('./pages/Calendar'));
@@ -35,7 +35,7 @@ const protectedRoutesConfig: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <Dashboard />,
+        element: <DashboardRoutes />,
       },
       {
         path: 'vehicles',

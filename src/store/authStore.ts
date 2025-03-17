@@ -20,8 +20,9 @@ const mockUser: User = {
   id: '1',
   name: 'John Doe',
   email: 'john@example.com',
-  role: 'master',
+  role: 'admin',
   planType: 'pro',
+  permissions: ['dashboard', 'users', 'cars', 'rentals', 'settings'],
   avatar: 'https://i.pravatar.cc/300',
   createdAt: new Date().toISOString(),
 };
