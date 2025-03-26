@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, RouteObject } from 'react-router-dom';
-import Login from './pages/Login';
+import { SessionRoutes } from './pages/login/routes';
 
 const Landing = React.lazy(() => import('./pages/Landing'));
 
@@ -17,7 +17,7 @@ const publicRoutesConfig: RouteObject[] = [
   },
   {
     path: '/login',
-    element: <Login />,
+    element: <SessionRoutes />,
   },
   {
     path: '/register',

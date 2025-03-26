@@ -4,13 +4,13 @@ import Layout from './components/layout/Layout';
 import useAuthStore from './store/authStore';
 import { DashboardRoutes } from './pages/dashboard/routes';
 
-const Vehicles = React.lazy(() => import('./pages/Vehicles'));
-const Calendar = React.lazy(() => import('./pages/Calendar'));
-const Map = React.lazy(() => import('./pages/Map'));
-const Settings = React.lazy(() => import('./pages/Settings'));
-const Clients = React.lazy(() => import('./pages/Clients'));
-const FineManagement = React.lazy(() => import('./pages/FineManagement'));
-const Collection = React.lazy(() => import('./pages/Collection'));
+const Vehicles = React.lazy(() => import('./pages/vehicle/routes/index'));
+const Calendar = React.lazy(() => import('./pages/calendar/routes/index'));
+const Map = React.lazy(() => import('./pages/map/routes/index'));
+const Settings = React.lazy(() => import('./pages/setting/routes/index'));
+const Clients = React.lazy(() => import('./pages/client/routes/index'));
+const FineManagement = React.lazy(() => import('./pages/fineManagement/routes/index'));
+const Collection = React.lazy(() => import('./pages/collection/routes/index'));
 
 
 const Loading = () => <div>Loading...</div>;

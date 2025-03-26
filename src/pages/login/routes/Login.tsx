@@ -22,7 +22,7 @@ import {
   VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
 import { Link as RouterLink, Navigate } from 'react-router-dom';
-import useAuthStore from '../store/authStore';
+import useAuthStore from '../../../store/authStore';
 
 const Login: React.FC = () => {
   const theme = useTheme();

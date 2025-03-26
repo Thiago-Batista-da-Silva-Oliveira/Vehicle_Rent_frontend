@@ -37,8 +37,9 @@ import {
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useVehicles } from '../services/vehicleService';
-import { Vehicle } from '../types/Vehicle';
+import { Vehicle } from '../../../types/Vehicle';
+import { useVehicles } from '../../../services/vehicleService';
+
 
 // Fix Leaflet marker issue
 delete (L.Icon.Default.prototype as any)._getIconUrl;

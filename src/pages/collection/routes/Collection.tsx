@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
@@ -32,10 +32,10 @@ import {
   Schedule as ScheduleIcon,
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
-import { mockResponse } from '../services/api';
-import { useClients } from '../services/clientService';
-import { formatCurrency, formatDate } from '../utils/formatters';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, LineChart, Line } from 'recharts';
+import { mockResponse } from '../../../services/api';
+import { formatCurrency, formatDate } from '../../../utils/formatters';
+import { useClients } from '../../../services/clientService';
 
 // Define Invoice and Payment types
 interface Invoice {

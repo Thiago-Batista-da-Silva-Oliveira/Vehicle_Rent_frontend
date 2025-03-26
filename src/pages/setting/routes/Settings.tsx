@@ -27,9 +27,9 @@ import {
   Palette as PaletteIcon,
   AccountBox as AccountIcon,
 } from '@mui/icons-material';
-import useSettingsStore from '../store/settingsStore';
-import useAuthStore from '../store/authStore';
-import { AccentColor } from '../styles/theme';
+import useSettingsStore from '../../../store/settingsStore';
+import useAuthStore from '../../../store/authStore';
+import { AccentColor } from '../../../styles/theme';
 
 interface TabPanelProps {
   children?: React.ReactNode;

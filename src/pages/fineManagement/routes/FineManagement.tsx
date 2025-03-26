@@ -56,11 +56,11 @@ import {
   Warning as WarningIcon,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockResponse } from '../services/api';
-import { useClients } from '../services/clientService';
-import { useVehicles } from '../services/vehicleService';
-import { formatCurrency, formatDate } from '../utils/formatters';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { mockResponse } from '../../../services/api';
+import { useClients } from '../../../services/clientService';
+import { useVehicles } from '../../../services/vehicleService';
+import { formatCurrency, formatDate } from '../../../utils/formatters';
 
 // Define Fine type
 interface Fine {

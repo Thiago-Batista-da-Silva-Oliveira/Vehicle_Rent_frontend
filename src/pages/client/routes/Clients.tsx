@@ -57,10 +57,11 @@ import {
   Link as LinkIcon,
   Check as CheckIcon,
 } from '@mui/icons-material';
-import { useClients, useCreateClient, useUpdateClient } from '../services/clientService';
-import { useVehicles } from '../services/vehicleService';
-import { formatDate, formatPhoneNumber } from '../utils/formatters';
-import { Client } from '../types/Client';
+import { Client } from '../../../types/Client';
+import { useClients, useCreateClient, useUpdateClient } from '../../../services/clientService';
+import { formatDate, formatPhoneNumber } from '../../../utils/formatters';
+import { useVehicles } from '../../../services/vehicleService';
+
 
 const ClientsList: React.FC<{
   onEdit: (client: Client) => void;

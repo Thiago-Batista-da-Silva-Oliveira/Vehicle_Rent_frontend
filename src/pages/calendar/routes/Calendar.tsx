@@ -52,11 +52,12 @@ import {
   parseISO,
   isWithinInterval,
 } from 'date-fns';
-import { mockResponse } from '../services/api';
 import { useQuery } from '@tanstack/react-query';
-import { useVehicles } from '../services/vehicleService';
-import { useClients } from '../services/clientService';
-import { Appointment } from '../types/Appointment';
+import { Appointment } from '../../../types/Appointment';
+import { mockResponse } from '../../../services/api';
+import { useClients } from '../../../services/clientService';
+import { useVehicles } from '../../../services/vehicleService';
+
 
 // Mock appointments data
 const fetchAppointments = async () => {

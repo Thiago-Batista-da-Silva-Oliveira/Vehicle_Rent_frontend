@@ -29,9 +29,9 @@ import {
   FilterList as FilterIcon,
   Sort as SortIcon,
 } from '@mui/icons-material';
-import { useVehicles, useDeleteVehicle } from '../services/vehicleService';
-import { formatCurrency } from '../utils/formatters';
-import { Vehicle } from '../types/Vehicle';
+import { formatCurrency } from '../../../utils/formatters';
+import { useDeleteVehicle, useVehicles } from '../../../services/vehicleService';
+import { Vehicle } from '../../../types/Vehicle';
 
 const statusColors: any = {
   available: 'success',
