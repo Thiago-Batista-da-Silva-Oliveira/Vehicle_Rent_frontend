@@ -7,15 +7,18 @@ export interface User {
     name: string;
     email: string;
     role: UserRole;
+    tenantId?: string;
+    roleId?: string;
     permissions: UserPermission[];
     planType: 'free' | 'pro' | 'enterprise';
     avatar?: string;
-    createdAt: string;
+    createdAt?: string;
   }
   
   export interface LoginCredentials {
     email: string;
     password: string;
+    tenantDomain: string;
   }
   
   export interface RegisterData extends LoginCredentials {

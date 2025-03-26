@@ -13,7 +13,6 @@ import {
   Button,
   CircularProgress,
   Divider,
-  Grid,
 } from '@mui/material';
 import {
   Email as EmailIcon,
@@ -32,7 +31,6 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formErrors, setFormErrors] = useState<{ email?: string; password?: string }>({});
 
-  // If already authenticated, redirect to dashboard
   if (isAuthenticated) {
     return <Navigate to="/" />;
   }
@@ -41,7 +39,6 @@ const Login: React.FC = () => {
     const errors: { email?: string; password?: string } = {};
     let isValid = true;
 
-    // Validate email
     if (!email) {
       errors.email = 'Email is required';
       isValid = false;
@@ -50,7 +47,6 @@ const Login: React.FC = () => {
       isValid = false;
     }
 
-    // Validate password
     if (!password) {
       errors.password = 'Password is required';
       isValid = false;
@@ -68,14 +64,10 @@ const Login: React.FC = () => {
     clearError();
 
     if (validateForm()) {
-      await login({ email, password });
+      await login({ email, password, tenantDomain: 'rentx' });
     }
   };
 
-  const handleSocialLogin = (provider: string) => {
-    // In a real app, implement social login
-    console.log(`Login with ${provider}`);
-  };
 
   return (
     <Box
@@ -92,10 +84,10 @@ const Login: React.FC = () => {
         <CardContent sx={{ p: 4 }}>
           <Box sx={{ mb: 4, textAlign: 'center' }}>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-              Welcome Back!
+              Bem vindo!
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              Enter your credentials to access your account
+             Faça login para continuar.
             </Typography>
           </Box>
 
