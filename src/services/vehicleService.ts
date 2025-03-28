@@ -112,14 +112,149 @@ const mockVehicles: Vehicle[] = [
   }
 ];
 
+// API interfaces based on api-routes.md
+export interface VehicleApiResponse {
+  id: string;
+  plate: string;
+  brand: string;
+  model: string;
+  year: number;
+  color: string;
+  chassisNumber: string;
+  renavamCode: string;
+  fuelType: 'FLEX' | 'GASOLINE' | 'DIESEL' | 'ELECTRIC' | 'HYBRID';
+  mileage: number;
+  status: 'AVAILABLE' | 'MAINTENANCE' | 'RENTED' | 'INACTIVE';
+  purchaseDate: string;
+  purchaseValue: number;
+  categoryId: string;
+  createdAt: string;
+  updatedAt: string;
+  photos?: VehiclePhotoResponse[];
+  category?: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface VehiclePhotoResponse {
+  id: string;
+  vehicleId: string;
+  url: string;
+  createdAt: string;
+}
+
+export interface CreateVehicleRequest {
+  plate: string;
+  brand: string;
+  model: string;
+  year: number;
+  color: string;
+  chassisNumber: string;
+  renavamCode: string;
+  fuelType: 'FLEX' | 'GASOLINE' | 'DIESEL' | 'ELECTRIC' | 'HYBRID';
+  mileage: number;
+  status: 'AVAILABLE' | 'MAINTENANCE' | 'RENTED' | 'INACTIVE';
+  purchaseDate: string;
+  purchaseValue: number;
+  categoryId: string;
+}
+
+export interface UpdateVehicleRequest {
+  plate?: string;
+  brand?: string;
+  model?: string;
+  year?: number;
+  color?: string;
+  chassisNumber?: string;
+  renavamCode?: string;
+  fuelType?: 'FLEX' | 'GASOLINE' | 'DIESEL' | 'ELECTRIC' | 'HYBRID';
+  mileage?: number;
+  status?: 'AVAILABLE' | 'MAINTENANCE' | 'RENTED' | 'INACTIVE';
+  purchaseDate?: string;
+  purchaseValue?: number;
+  categoryId?: string;
+}
+
+export interface GetVehiclesParams {
+  categoryId?: string;
+  status?: 'AVAILABLE' | 'MAINTENANCE' | 'RENTED' | 'INACTIVE';
+}
+
 // API functions
-const fetchVehicles = async (): Promise<Vehicle[]> => {
-  // In a real app: return (await api.get('/vehicles')).data;
-  return mockResponse(mockVehicles, 800);
+// Real API implementations
+export const apiCreateVehicle = async (vehicle: CreateVehicleRequest): Promise<Vehicle> => {
+  try {
+    const response = await api.post<VehicleApiResponse>('/vehicles', vehicle);
+    return mapVehicleFromAPI(response.data);
+  } catch (error) {
+    throw new Error('Failed to create vehicle');
+  }
+};
+
+export const apiGetAllVehicles = async (params?: GetVehiclesParams): Promise<Vehicle[]> => {
+  try {
+    const response = await api.get<VehicleApiResponse[]>('/vehicles', { params });
+    return response.data.map(mapVehicleFromAPI);
+  } catch (error) {
+    throw new Error('Failed to fetch vehicles');
+  }
+};
+
+export const apiGetVehicleById = async (id: string): Promise<Vehicle> => {
+  try {
+    const response = await api.get<VehicleApiResponse>(`/vehicles/${id}`);
+    return mapVehicleFromAPI(response.data);
+  } catch (error) {
+    throw new Error('Failed to fetch vehicle');
+  }
+};
+
+export const apiUpdateVehicle = async (id: string, vehicle: UpdateVehicleRequest): Promise<Vehicle> => {
+  try {
+    const response = await api.put<VehicleApiResponse>(`/vehicles/${id}`, vehicle);
+    return mapVehicleFromAPI(response.data);
+  } catch (error) {
+    throw new Error('Failed to update vehicle');
+  }
+};
+
+export const apiDeleteVehicle = async (id: string): Promise<void> => {
+  try {
+    await api.delete(`/vehicles/${id}`);
+  } catch (error) {
+    throw new Error('Failed to delete vehicle');
+  }
+};
+
+export const apiUploadVehiclePhotos = async (id: string, photos: File[]): Promise<VehiclePhotoResponse[]> => {
+  try {
+    const formData = new FormData();
+    photos.forEach(photo => {
+      formData.append('photos', photo);
+    });
+    
+    const response = await api.post<VehiclePhotoResponse[]>(`/vehicles/${id}/photos`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to upload vehicle photos');
+  }
+};
+
+// Mock API functions - for development without backend
+const fetchVehicles = async (params?: GetVehiclesParams): Promise<Vehicle[]> => {
+    return apiGetAllVehicles(params);
 };
 
 const fetchVehicleById = async (id: string): Promise<Vehicle> => {
-  // In a real app: return (await api.get(`/vehicles/${id}`)).data;
+  if (process.env.REACT_APP_USE_REAL_API === 'true') {
+    return apiGetVehicleById(id);
+  }
   const vehicle = mockVehicles.find(v => v.id === id);
   if (!vehicle) {
     throw new Error('Vehicle not found');
@@ -128,7 +263,9 @@ const fetchVehicleById = async (id: string): Promise<Vehicle> => {
 };
 
 const createVehicle = async (data: VehicleFormData): Promise<Vehicle> => {
-  // In a real app: return (await api.post('/vehicles', data)).data;
+  if (process.env.REACT_APP_USE_REAL_API === 'true') {
+    return apiCreateVehicle(mapVehicleToAPI(data));
+  }
   const newVehicle: Vehicle = {
     id: `new-${Date.now()}`,
     ...data,
@@ -140,7 +277,9 @@ const createVehicle = async (data: VehicleFormData): Promise<Vehicle> => {
 };
 
 const updateVehicle = async (id: string, data: Partial<VehicleFormData>): Promise<Vehicle> => {
-  // In a real app: return (await api.put(`/vehicles/${id}`, data)).data;
+  if (process.env.REACT_APP_USE_REAL_API === 'true') {
+    return apiUpdateVehicle(id, mapPartialVehicleToAPI(data));
+  }
   const vehicle = mockVehicles.find(v => v.id === id);
   if (!vehicle) {
     throw new Error('Vehicle not found');
@@ -154,15 +293,118 @@ const updateVehicle = async (id: string, data: Partial<VehicleFormData>): Promis
 };
 
 const deleteVehicle = async (id: string): Promise<void> => {
-  // In a real app: return (await api.delete(`/vehicles/${id}`)).data;
+  if (process.env.REACT_APP_USE_REAL_API === 'true') {
+    return apiDeleteVehicle(id);
+  }
   return mockResponse(undefined, 600);
 };
 
+const uploadVehiclePhotos = async (id: string, photos: File[]): Promise<VehiclePhotoResponse[]> => {
+  if (process.env.REACT_APP_USE_REAL_API === 'true') {
+    return apiUploadVehiclePhotos(id, photos);
+  }
+  // Mock implementation
+  return mockResponse(
+    photos.map((_, index) => ({
+      id: `photo-${Date.now()}-${index}`,
+      vehicleId: id,
+      url: URL.createObjectURL(photos[index]),
+      createdAt: new Date().toISOString()
+    })),
+    1000
+  );
+};
+
+// Converters between frontend and API formats
+export const mapVehicleFromAPI = (apiVehicle: VehicleApiResponse): Vehicle => {
+  return {
+    id: apiVehicle.id,
+    make: apiVehicle.brand,
+    model: apiVehicle.model,
+    year: apiVehicle.year,
+    licensePlate: apiVehicle.plate,
+    color: apiVehicle.color,
+    status: apiVehicle.status.toLowerCase() as any,
+    fuelType: mapFuelType(apiVehicle.fuelType),
+    mileage: apiVehicle.mileage,
+    dailyRate: apiVehicle.purchaseValue / 1000, // Mock calculation, should be from a pricing model
+    images: apiVehicle.photos?.map(photo => photo.url) || [],
+    description: '',
+    features: [],
+    createdAt: apiVehicle.createdAt,
+    updatedAt: apiVehicle.updatedAt
+  };
+};
+
+export const mapVehicleToAPI = (vehicle: VehicleFormData): CreateVehicleRequest => {
+  return {
+    plate: vehicle.licensePlate,
+    brand: vehicle.make,
+    model: vehicle.model,
+    year: vehicle.year,
+    color: vehicle.color,
+    chassisNumber: '', // These would need to be collected from the form
+    renavamCode: '',
+    fuelType: mapFuelTypeToAPI(vehicle.fuelType),
+    mileage: vehicle.mileage,
+    status: 'AVAILABLE',
+    purchaseDate: new Date().toISOString(),
+    purchaseValue: vehicle.dailyRate * 1000, // Mock calculation, should be the actual purchase value
+    categoryId: '' // This would need to be collected from the form
+  };
+};
+
+export const mapPartialVehicleToAPI = (vehicle: Partial<VehicleFormData>): UpdateVehicleRequest => {
+  const mapped: UpdateVehicleRequest = {};
+  
+  if (vehicle.make) mapped.brand = vehicle.make;
+  if (vehicle.model) mapped.model = vehicle.model;
+  if (vehicle.year) mapped.year = vehicle.year;
+  if (vehicle.licensePlate) mapped.plate = vehicle.licensePlate;
+  if (vehicle.color) mapped.color = vehicle.color;
+  if (vehicle.fuelType) mapped.fuelType = mapFuelTypeToAPI(vehicle.fuelType);
+  if (vehicle.mileage) mapped.mileage = vehicle.mileage;
+  
+  return mapped;
+};
+
+// Helper functions for mapping enum values
+const mapFuelType = (apiType: string): 'gasoline' | 'diesel' | 'electric' | 'hybrid' => {
+  switch (apiType) {
+    case 'FLEX':
+    case 'GASOLINE':
+      return 'gasoline';
+    case 'DIESEL':
+      return 'diesel';
+    case 'ELECTRIC':
+      return 'electric';
+    case 'HYBRID':
+      return 'hybrid';
+    default:
+      return 'gasoline';
+  }
+};
+
+const mapFuelTypeToAPI = (type: string): 'FLEX' | 'GASOLINE' | 'DIESEL' | 'ELECTRIC' | 'HYBRID' => {
+  switch (type) {
+    case 'gasoline':
+      return 'GASOLINE';
+    case 'diesel':
+      return 'DIESEL';
+    case 'electric':
+      return 'ELECTRIC';
+    case 'hybrid':
+      return 'HYBRID';
+    default:
+      return 'FLEX';
+  }
+};
+
 // React Query hooks
-export const useVehicles = () => {
+export const useVehicles = (params?: GetVehiclesParams) => {
   return useQuery<Vehicle[], Error>({
-    queryKey: ['vehicles'],
-    queryFn: fetchVehicles,
+    queryKey: ['vehicles', params],
+    queryFn: () => fetchVehicles(params),
   });
 };
 
@@ -204,6 +446,17 @@ export const useDeleteVehicle = () => {
     mutationFn: deleteVehicle,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+    },
+  });
+};
+
+export const useUploadVehiclePhotos = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation<VehiclePhotoResponse[], Error, { id: string; photos: File[] }>({
+    mutationFn: ({ id, photos }) => uploadVehiclePhotos(id, photos),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['vehicle', variables.id] });
     },
   });
 };

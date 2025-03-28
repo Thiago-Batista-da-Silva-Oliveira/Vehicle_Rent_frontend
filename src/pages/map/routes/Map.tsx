@@ -219,7 +219,7 @@ const Map: React.FC = () => {
                 {filteredVehicles.length === 0 ? (
                   <Box textAlign="center" py={4}>
                     <Typography variant="body2" color="textSecondary">
-                      No vehicles found
+                        Nenhum veículo encontrado
                     </Typography>
                   </Box>
                 ) : (

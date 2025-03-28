@@ -1,3 +1,6 @@
+export type VehicleStatus = 'AVAILABLE' | 'RENTED' | 'MAINTENANCE' | 'INACTIVE';
+export type FuelType = 'gasoline' | 'diesel' | 'electric' | 'hybrid';
+
 export interface Vehicle {
     id: string;
     make: string;
@@ -5,8 +8,8 @@ export interface Vehicle {
     year: number;
     licensePlate: string;
     color: string;
-    status: 'available' | 'rented' | 'maintenance' | 'inactive';
-    fuelType: 'gasoline' | 'diesel' | 'electric' | 'hybrid';
+    status: string;
+    fuelType: FuelType;
     mileage: number;
     dailyRate: number;
     images?: string[];
@@ -18,8 +21,8 @@ export interface Vehicle {
       address?: string;
     };
     clientId?: string;
-    createdAt: string;
-    updatedAt: string;
+    createdAt?: string;
+    updatedAt?: string;
   }
   
   export interface VehicleFormData {
@@ -28,7 +31,7 @@ export interface Vehicle {
     year: number;
     licensePlate: string;
     color: string;
-    fuelType: 'gasoline' | 'diesel' | 'electric' | 'hybrid';
+    fuelType: FuelType;
     mileage: number;
     dailyRate: number;
     images?: string[];

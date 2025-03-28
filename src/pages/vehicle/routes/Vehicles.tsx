@@ -13,7 +13,6 @@ import {
   TextField,
   InputAdornment,
   CircularProgress,
-  Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -223,9 +222,9 @@ const Vehicles: React.FC = () => {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => console.log('Add vehicle')}
+          onClick={() => console.log('Adicionar veículo')}
         >
-          Add Vehicle
+          Adicionar Veículo
         </Button>
       </Box>
       
@@ -269,7 +268,7 @@ const Vehicles: React.FC = () => {
       ) : error ? (
         <Card>
           <CardContent>
-            <Typography color="error">Error loading vehicles. Please try again.</Typography>
+            <Typography color="error">Erro ao carregar veículos. Por favor, tente novamente.</Typography>
           </CardContent>
         </Card>
       ) : (
@@ -290,19 +289,19 @@ const Vehicles: React.FC = () => {
                 <Card>
                   <CardContent sx={{ textAlign: 'center', py: 4 }}>
                     <Typography variant="h6" mb={1}>
-                      No vehicles found
+                      Nenhum veículo encontrado
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
-                      {search ? `No results for "${search}"` : 'Add your first vehicle to get started'}
+                      {search ? `Nenhum resultado para "${search}"` : 'Adicione seu primeiro veículo para começar'}
                     </Typography>
                     
                     <Button
                       variant="contained"
                       startIcon={<AddIcon />}
                       sx={{ mt: 2 }}
-                      onClick={() => console.log('Add vehicle')}
+                      onClick={() => console.log('Adicionar veículo')}
                     >
-                      Add Vehicle
+                      Adicionar Veículo
                     </Button>
                   </CardContent>
                 </Card>

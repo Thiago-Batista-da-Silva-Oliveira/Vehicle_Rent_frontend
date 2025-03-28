@@ -5,7 +5,7 @@ import { Can } from '../../../components/can';
 export const DashboardRoutes = () => {
   return (
     <>
-      <Can roles={['admin']} permissions={[]}>
+      <Can roles={[]} permissions={[]}>
         <Routes>
           <Route path="/" element={<DashboardPage />} />
         </Routes>

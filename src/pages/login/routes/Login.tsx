@@ -64,7 +64,7 @@ const Login: React.FC = () => {
     clearError();
 
     if (validateForm()) {
-      await login({ email, password, tenantDomain: 'rentx' });
+      await login({ email, password, tenantDomain: 'admin' });
     }
   };
 
@@ -155,30 +155,30 @@ const Login: React.FC = () => {
               {isLoading ? (
                 <CircularProgress size={24} color="inherit" />
               ) : (
-                'Sign In'
+                'Entrar'
               )}
             </Button>
             
             <Box sx={{ mt: 3, mb: 3 }}>
               <Divider>
                 <Typography variant="body2" color="textSecondary" sx={{ px: 2 }}>
-                  Or continue with
+                  Ou continue com
                 </Typography>
               </Divider>
             </Box>
             
             <Box sx={{ mt: 4, textAlign: 'center' }}>
               <Typography variant="body2">
-                Don't have an account?{' '}
+                Não tem uma conta?{' '}
                 <Link component={RouterLink} to="/register" fontWeight="bold">
-                  Sign up
+                  Cadastrar
                 </Link>
               </Typography>
             </Box>
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
               <Link component={RouterLink} to="/forgot-password" variant="body2">
-                Forgot password?
+                Esqueceu sua senha?
               </Link>
             </Box>
           </form>
