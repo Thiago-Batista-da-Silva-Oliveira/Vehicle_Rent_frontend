@@ -42,5 +42,4 @@ export interface Vehicle {
     purchaseValue?: number;
     categoryId: string;
     tenantId: string;
-    description?: string;
   }

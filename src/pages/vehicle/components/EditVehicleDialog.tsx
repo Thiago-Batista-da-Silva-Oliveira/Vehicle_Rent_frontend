@@ -17,14 +17,15 @@ import {
 } from '@mui/material';
 import { Close as CloseIcon, Save as SaveIcon } from '@mui/icons-material';
 import { useForm, Controller } from 'react-hook-form';
-import { VehicleFormData } from '../../../types/Vehicle';
-import { useCreateVehicle } from '../../../services/vehicleService';
+import { Vehicle, VehicleFormData } from '../../../types/Vehicle';
+import { useUpdateVehicle, useVehicle } from '../../../services/vehicleService';
 import useNotification from '../../../hooks/useNotification';
 import api from '../../../services/api';
 
-interface AddVehicleDialogProps {
+interface EditVehicleDialogProps {
   open: boolean;
   onClose: () => void;
+  vehicleId: string | null;
 }
 
 interface Category {
@@ -47,8 +48,9 @@ const defaultValues: VehicleFormData = {
   tenantId: '11111111-1111-1111-1111-111111111111',
 };
 
-const AddVehicleDialog: React.FC<AddVehicleDialogProps> = ({ open, onClose }) => {
-  const createVehicleMutation = useCreateVehicle();
+const EditVehicleDialog: React.FC<EditVehicleDialogProps> = ({ open, onClose, vehicleId }) => {
+  const updateVehicleMutation = useUpdateVehicle();
+  const { data: vehicle, isLoading: isLoadingVehicle } = useVehicle(vehicleId || '');
   const notification = useNotification();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
@@ -62,14 +64,11 @@ const AddVehicleDialog: React.FC<AddVehicleDialogProps> = ({ open, onClose }) =>
     defaultValues,
   });
 
+  // Carregar categorias quando o modal for aberto
   useEffect(() => {
     const fetchCategories = async () => {
       setLoadingCategories(true);
       try {
-        // Em desenvolvimento, podemos usar dados mock caso a API não esteja disponível
-        // const response = await api.get<Category[]>('/categories');
-        // setCategories(response.data);
-        
         // Mock de categorias para desenvolvimento
         setCategories([
           { id: '11111111-1111-1111-1111-111111111111', name: 'Sedan' },
@@ -89,24 +88,59 @@ const AddVehicleDialog: React.FC<AddVehicleDialogProps> = ({ open, onClose }) =>
     }
   }, [open, notification]);
 
+  // Preencher o formulário com os dados do veículo quando eles forem carregados
+  useEffect(() => {
+    if (vehicle) {
+      reset({
+        brand: vehicle.brand,
+        model: vehicle.model,
+        year: vehicle.year,
+        plate: vehicle.plate,
+        color: vehicle.color,
+        fuelType: vehicle.fuelType,
+        mileage: vehicle.mileage,
+        purchaseValue: vehicle.purchaseValue || 0,
+        categoryId: vehicle.categoryId || '',
+        chassisNumber: vehicle.chassisNumber || '',
+        renavamCode: vehicle.renavamCode || '',
+        tenantId: vehicle.tenantId || '11111111-1111-1111-1111-111111111111',
+      });
+    }
+  }, [vehicle, reset]);
+
   const handleCloseDialog = () => {
     reset(defaultValues);
     onClose();
   };
 
   const onSubmit = async (data: VehicleFormData) => {
+    if (!vehicleId) return;
+    
     try {
       // Adicionando a data de compra atual se não for fornecida
       if (!data.purchaseDate) {
         data.purchaseDate = new Date();
       }
       
-      await createVehicleMutation.mutateAsync(data);
+      await updateVehicleMutation.mutateAsync({
+        id: vehicleId,
+        data,
+      });
       handleCloseDialog();
     } catch (error) {
-      // O erro já está sendo tratado pelo hook useCreateVehicle
+      // O erro já está sendo tratado pelo hook useUpdateVehicle
     }
   };
+
+  if (isLoadingVehicle) {
+    return (
+      <Dialog open={open} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+        <DialogContent>
+          <CircularProgress />
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog 
@@ -116,7 +150,7 @@ const AddVehicleDialog: React.FC<AddVehicleDialogProps> = ({ open, onClose }) =>
       fullWidth
     >
       <DialogTitle>
-        Adicionar Novo Veículo
+        Editar Veículo
         <IconButton 
           onClick={handleCloseDialog} 
           sx={{ position: 'absolute', right: 8, top: 8 }}
@@ -374,9 +408,9 @@ const AddVehicleDialog: React.FC<AddVehicleDialogProps> = ({ open, onClose }) =>
             type="submit" 
             variant="contained" 
             startIcon={<SaveIcon />}
-            disabled={isSubmitting || createVehicleMutation.isLoading}
+            disabled={isSubmitting || updateVehicleMutation.isLoading}
           >
-            {createVehicleMutation.isLoading ? <CircularProgress size={24} /> : 'Criar'}
+            {updateVehicleMutation.isLoading ? <CircularProgress size={24} /> : 'Salvar'}
           </Button>
         </DialogActions>
       </form>
@@ -384,4 +418,4 @@ const AddVehicleDialog: React.FC<AddVehicleDialogProps> = ({ open, onClose }) =>
   );
 };
 
-export default AddVehicleDialog; 
+export default EditVehicleDialog; 

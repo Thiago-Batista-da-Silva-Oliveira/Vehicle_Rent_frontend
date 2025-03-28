@@ -32,7 +32,6 @@ interface VehicleCardProps {
 }
 
 const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onEdit, onDelete }) => {
-  console.log('vehicle', vehicle)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -122,7 +121,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onEdit, onDelete }) 
         <Box mt={2} display="flex" justifyContent="space-between">
           <Box>
             <Typography variant="caption" color="textSecondary">
-              Diária
+              Valor
             </Typography>
             <Typography variant="subtitle1" fontWeight="bold">
               {formatCurrency(vehicle.purchaseValue || 0)}

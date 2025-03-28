@@ -145,14 +145,7 @@ const fetchVehicles = async (params?: GetVehiclesParams): Promise<Vehicle[]> => 
 };
 
 const fetchVehicleById = async (id: string): Promise<Vehicle> => {
-  if (process.env.REACT_APP_USE_REAL_API === 'true') {
     return apiGetVehicleById(id);
-  }
-  const vehicle = mockVehicles.find(v => v.id === id);
-  if (!vehicle) {
-    throw new Error('Veículo não encontrado');
-  }
-  return mockResponse(vehicle, 500);
 };
 
 const createVehicle = async (data: VehicleFormData): Promise<Vehicle> => {
@@ -231,8 +224,13 @@ export const mapPartialVehicleToAPI = (vehicle: Partial<VehicleFormData>): Updat
   if (vehicle.year) mapped.year = vehicle.year;
   if (vehicle.plate) mapped.plate = vehicle.plate;
   if (vehicle.color) mapped.color = vehicle.color;
+  if (vehicle.chassisNumber) mapped.chassisNumber = vehicle.chassisNumber;
+  if (vehicle.renavamCode) mapped.renavamCode = vehicle.renavamCode;
   if (vehicle.fuelType) mapped.fuelType = mapFuelTypeToAPI(vehicle.fuelType);
   if (vehicle.mileage) mapped.mileage = vehicle.mileage;
+  if (vehicle.categoryId) mapped.categoryId = vehicle.categoryId;
+  if (vehicle.purchaseDate) mapped.purchaseDate = vehicle.purchaseDate.toISOString();
+  if (vehicle.purchaseValue) mapped.purchaseValue = vehicle.purchaseValue;
   
   return mapped;
 };
