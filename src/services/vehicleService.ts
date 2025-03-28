@@ -164,10 +164,7 @@ const updateVehicle = async (id: string, data: Partial<VehicleFormData>): Promis
 };
 
 const deleteVehicle = async (id: string): Promise<void> => {
-  if (process.env.REACT_APP_USE_REAL_API === 'true') {
     return apiDeleteVehicle(id);
-  }
-  return mockResponse(undefined, 600);
 };
 
 const uploadVehiclePhotos = async (id: string, photos: File[]): Promise<VehiclePhotoResponse[]> => {
