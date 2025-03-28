@@ -6,6 +6,7 @@ import privateRoutesConfig from "./privateRoutes";
 import adminProtectedRoutesConfig from "./adminRoutes";
 import { ThemeProvider } from "./context/ThemeContext";
 import useAuthStore from "./store/authStore";
+import { NotificationProvider } from "./hooks/useNotification";
 
 // Create a react-query client
 const queryClient = new QueryClient({
@@ -35,9 +36,11 @@ const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <BrowserRouter>
-          <Routes />
-        </BrowserRouter>
+        <NotificationProvider>
+          <BrowserRouter>
+            <Routes />
+          </BrowserRouter>
+        </NotificationProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

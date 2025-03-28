@@ -26,20 +26,18 @@ export interface Vehicle {
   }
   
   export interface VehicleFormData {
-    make: string;
+    plate: string;
+    brand: string;
     model: string;
     year: number;
-    licensePlate: string;
     color: string;
-    fuelType: FuelType;
+    chassisNumber: string;
+    renavamCode?: string;
+    fuelType: string;
     mileage: number;
-    dailyRate: number;
-    images?: string[];
+    purchaseDate?: Date;
+    purchaseValue?: number;
+    categoryId: string;
+    tenantId: string;
     description?: string;
-    features?: string[];
-    location?: {
-      lat: number;
-      lng: number;
-      address?: string;
-    };
   }

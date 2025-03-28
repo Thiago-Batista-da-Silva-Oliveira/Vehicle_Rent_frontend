@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api, { mockResponse } from './api';
 import { Vehicle, VehicleFormData } from '../types/Vehicle';
+import useNotification from '../hooks/useNotification';
 
 // Mock data for development
 const mockVehicles: Vehicle[] = [
@@ -188,7 +189,7 @@ export const apiCreateVehicle = async (vehicle: CreateVehicleRequest): Promise<V
     const response = await api.post<VehicleApiResponse>('/vehicles', vehicle);
     return mapVehicleFromAPI(response.data);
   } catch (error) {
-    throw new Error('Failed to create vehicle');
+    throw new Error('Falha ao criar veículo');
   }
 };
 
@@ -197,7 +198,7 @@ export const apiGetAllVehicles = async (params?: GetVehiclesParams): Promise<Veh
     const response = await api.get<VehicleApiResponse[]>('/vehicles', { params });
     return response.data.map(mapVehicleFromAPI);
   } catch (error) {
-    throw new Error('Failed to fetch vehicles');
+    throw new Error('Falha ao buscar veículos');
   }
 };
 
@@ -206,7 +207,7 @@ export const apiGetVehicleById = async (id: string): Promise<Vehicle> => {
     const response = await api.get<VehicleApiResponse>(`/vehicles/${id}`);
     return mapVehicleFromAPI(response.data);
   } catch (error) {
-    throw new Error('Failed to fetch vehicle');
+    throw new Error('Falha ao buscar veículo');
   }
 };
 
@@ -215,7 +216,7 @@ export const apiUpdateVehicle = async (id: string, vehicle: UpdateVehicleRequest
     const response = await api.put<VehicleApiResponse>(`/vehicles/${id}`, vehicle);
     return mapVehicleFromAPI(response.data);
   } catch (error) {
-    throw new Error('Failed to update vehicle');
+    throw new Error('Falha ao atualizar veículo');
   }
 };
 
@@ -223,7 +224,7 @@ export const apiDeleteVehicle = async (id: string): Promise<void> => {
   try {
     await api.delete(`/vehicles/${id}`);
   } catch (error) {
-    throw new Error('Failed to delete vehicle');
+    throw new Error('Falha ao excluir veículo');
   }
 };
 
@@ -242,7 +243,7 @@ export const apiUploadVehiclePhotos = async (id: string, photos: File[]): Promis
     
     return response.data;
   } catch (error) {
-    throw new Error('Failed to upload vehicle photos');
+    throw new Error('Falha ao enviar fotos do veículo');
   }
 };
 
@@ -257,39 +258,17 @@ const fetchVehicleById = async (id: string): Promise<Vehicle> => {
   }
   const vehicle = mockVehicles.find(v => v.id === id);
   if (!vehicle) {
-    throw new Error('Vehicle not found');
+    throw new Error('Veículo não encontrado');
   }
   return mockResponse(vehicle, 500);
 };
 
 const createVehicle = async (data: VehicleFormData): Promise<Vehicle> => {
-  if (process.env.REACT_APP_USE_REAL_API === 'true') {
     return apiCreateVehicle(mapVehicleToAPI(data));
-  }
-  const newVehicle: Vehicle = {
-    id: `new-${Date.now()}`,
-    ...data,
-    status: 'available',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  return mockResponse(newVehicle, 1000);
 };
 
 const updateVehicle = async (id: string, data: Partial<VehicleFormData>): Promise<Vehicle> => {
-  if (process.env.REACT_APP_USE_REAL_API === 'true') {
     return apiUpdateVehicle(id, mapPartialVehicleToAPI(data));
-  }
-  const vehicle = mockVehicles.find(v => v.id === id);
-  if (!vehicle) {
-    throw new Error('Vehicle not found');
-  }
-  const updatedVehicle: Vehicle = {
-    ...vehicle,
-    ...data,
-    updatedAt: new Date().toISOString(),
-  };
-  return mockResponse(updatedVehicle, 800);
 };
 
 const deleteVehicle = async (id: string): Promise<void> => {
@@ -338,8 +317,8 @@ export const mapVehicleFromAPI = (apiVehicle: VehicleApiResponse): Vehicle => {
 
 export const mapVehicleToAPI = (vehicle: VehicleFormData): CreateVehicleRequest => {
   return {
-    plate: vehicle.licensePlate,
-    brand: vehicle.make,
+    plate: vehicle.plate,
+    brand: vehicle.brand,
     model: vehicle.model,
     year: vehicle.year,
     color: vehicle.color,
@@ -349,18 +328,18 @@ export const mapVehicleToAPI = (vehicle: VehicleFormData): CreateVehicleRequest 
     mileage: vehicle.mileage,
     status: 'AVAILABLE',
     purchaseDate: new Date().toISOString(),
-    purchaseValue: vehicle.dailyRate * 1000, // Mock calculation, should be the actual purchase value
-    categoryId: '' // This would need to be collected from the form
+    categoryId: vehicle.categoryId,
+    purchaseValue: vehicle.purchaseValue || 0,
   };
 };
 
 export const mapPartialVehicleToAPI = (vehicle: Partial<VehicleFormData>): UpdateVehicleRequest => {
   const mapped: UpdateVehicleRequest = {};
   
-  if (vehicle.make) mapped.brand = vehicle.make;
+  if (vehicle.brand) mapped.brand = vehicle.brand;
   if (vehicle.model) mapped.model = vehicle.model;
   if (vehicle.year) mapped.year = vehicle.year;
-  if (vehicle.licensePlate) mapped.plate = vehicle.licensePlate;
+  if (vehicle.plate) mapped.plate = vehicle.plate;
   if (vehicle.color) mapped.color = vehicle.color;
   if (vehicle.fuelType) mapped.fuelType = mapFuelTypeToAPI(vehicle.fuelType);
   if (vehicle.mileage) mapped.mileage = vehicle.mileage;
@@ -402,61 +381,91 @@ const mapFuelTypeToAPI = (type: string): 'FLEX' | 'GASOLINE' | 'DIESEL' | 'ELECT
 
 // React Query hooks
 export const useVehicles = (params?: GetVehiclesParams) => {
+  const notification = useNotification();
+  
   return useQuery<Vehicle[], Error>({
     queryKey: ['vehicles', params],
     queryFn: () => fetchVehicles(params),
+    onError: (error) => {
+      notification.showError(`Erro ao carregar veículos: ${error.message}`);
+    }
   });
 };
 
 export const useVehicle = (id: string) => {
+  const notification = useNotification();
+  
   return useQuery<Vehicle, Error>({
     queryKey: ['vehicle', id],
     queryFn: () => fetchVehicleById(id),
     enabled: !!id,
+    onError: (error) => {
+      notification.showError(`Erro ao carregar detalhes do veículo: ${error.message}`);
+    }
   });
 };
 
 export const useCreateVehicle = () => {
   const queryClient = useQueryClient();
+  const notification = useNotification();
   
   return useMutation<Vehicle, Error, VehicleFormData>({
     mutationFn: createVehicle,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+      notification.showSuccess(`Veículo ${data.make} ${data.model} criado com sucesso!`);
     },
+    onError: (error) => {
+      notification.showError(`Erro ao criar veículo: ${error.message}`);
+    }
   });
 };
 
 export const useUpdateVehicle = () => {
   const queryClient = useQueryClient();
+  const notification = useNotification();
   
   return useMutation<Vehicle, Error, { id: string; data: Partial<VehicleFormData> }>({
     mutationFn: ({ id, data }) => updateVehicle(id, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
       queryClient.invalidateQueries({ queryKey: ['vehicle', data.id] });
+      notification.showSuccess(`Veículo ${data.make} ${data.model} atualizado com sucesso!`);
     },
+    onError: (error) => {
+      notification.showError(`Erro ao atualizar veículo: ${error.message}`);
+    }
   });
 };
 
 export const useDeleteVehicle = () => {
   const queryClient = useQueryClient();
+  const notification = useNotification();
   
   return useMutation<void, Error, string>({
     mutationFn: deleteVehicle,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+      notification.showSuccess('Veículo excluído com sucesso!');
     },
+    onError: (error) => {
+      notification.showError(`Erro ao excluir veículo: ${error.message}`);
+    }
   });
 };
 
 export const useUploadVehiclePhotos = () => {
   const queryClient = useQueryClient();
+  const notification = useNotification();
   
   return useMutation<VehiclePhotoResponse[], Error, { id: string; photos: File[] }>({
     mutationFn: ({ id, photos }) => uploadVehiclePhotos(id, photos),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['vehicle', variables.id] });
+      notification.showSuccess('Fotos do veículo enviadas com sucesso!');
     },
+    onError: (error) => {
+      notification.showError(`Erro ao enviar fotos: ${error.message}`);
+    }
   });
 };
