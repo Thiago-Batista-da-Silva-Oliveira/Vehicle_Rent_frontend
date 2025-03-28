@@ -54,9 +54,9 @@ const Vehicles: React.FC = () => {
   const filteredVehicles = vehicles
     ? vehicles.filter(
         (vehicle) =>
-          vehicle.make.toLowerCase().includes(search.toLowerCase()) ||
+          vehicle.brand.toLowerCase().includes(search.toLowerCase()) ||
           vehicle.model.toLowerCase().includes(search.toLowerCase()) ||
-          vehicle.licensePlate.toLowerCase().includes(search.toLowerCase())
+          vehicle.plate.toLowerCase().includes(search.toLowerCase())
       )
     : [];
   

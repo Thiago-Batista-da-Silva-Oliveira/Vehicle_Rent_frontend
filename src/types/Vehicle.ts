@@ -2,27 +2,30 @@ export type VehicleStatus = 'AVAILABLE' | 'RENTED' | 'MAINTENANCE' | 'INACTIVE';
 export type FuelType = 'gasoline' | 'diesel' | 'electric' | 'hybrid';
 
 export interface Vehicle {
+  id: string;
+  plate: string;
+  brand: string;
+  model: string;
+  year: number;
+  color: string;
+  chassisNumber: string;
+  renavamCode?: string;
+  fuelType: string;
+  mileage: number;
+  status: string;
+  purchaseDate?: Date;
+  purchaseValue?: number;
+  categoryId: string;
+  category?: {
     id: string;
-    make: string;
-    model: string;
-    year: number;
-    licensePlate: string;
-    color: string;
-    status: string;
-    fuelType: FuelType;
-    mileage: number;
-    dailyRate: number;
-    images?: string[];
+    name: string;
     description?: string;
-    features?: string[];
-    location?: {
-      lat: number;
-      lng: number;
-      address?: string;
-    };
-    clientId?: string;
-    createdAt?: string;
-    updatedAt?: string;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  tenantId: string;
+  createdAt: Date;
+  updatedAt: Date;
   }
   
   export interface VehicleFormData {

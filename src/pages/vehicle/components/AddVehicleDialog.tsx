@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -19,10 +19,17 @@ import { Close as CloseIcon, Save as SaveIcon } from '@mui/icons-material';
 import { useForm, Controller } from 'react-hook-form';
 import { VehicleFormData } from '../../../types/Vehicle';
 import { useCreateVehicle } from '../../../services/vehicleService';
+import useNotification from '../../../hooks/useNotification';
+import api from '../../../services/api';
 
 interface AddVehicleDialogProps {
   open: boolean;
   onClose: () => void;
+}
+
+interface Category {
+  id: string;
+  name: string;
 }
 
 const defaultValues: VehicleFormData = {
@@ -36,12 +43,16 @@ const defaultValues: VehicleFormData = {
   purchaseValue: 0,
   description: '',
   categoryId: '',
-  tenantId: '',
   chassisNumber: '',
+  renavamCode: '',
+  tenantId: '11111111-1111-1111-1111-111111111111', // Valor padrão para o tenant ID
 };
 
 const AddVehicleDialog: React.FC<AddVehicleDialogProps> = ({ open, onClose }) => {
   const createVehicleMutation = useCreateVehicle();
+  const notification = useNotification();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
   
   const {
     control,
@@ -52,6 +63,33 @@ const AddVehicleDialog: React.FC<AddVehicleDialogProps> = ({ open, onClose }) =>
     defaultValues,
   });
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoadingCategories(true);
+      try {
+        // Em desenvolvimento, podemos usar dados mock caso a API não esteja disponível
+        // const response = await api.get<Category[]>('/categories');
+        // setCategories(response.data);
+        
+        // Mock de categorias para desenvolvimento
+        setCategories([
+          { id: '11111111-1111-1111-1111-111111111111', name: 'Sedan' },
+          { id: '22222222-2222-2222-2222-222222222222', name: 'SUV' },
+          { id: '33333333-3333-3333-3333-333333333333', name: 'Hatch' },
+          { id: '44444444-4444-4444-4444-444444444444', name: 'Pickup' },
+        ]);
+      } catch (error) {
+        notification.showError('Erro ao carregar categorias de veículos');
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    if (open) {
+      fetchCategories();
+    }
+  }, [open, notification]);
+
   const handleCloseDialog = () => {
     reset(defaultValues);
     onClose();
@@ -59,6 +97,11 @@ const AddVehicleDialog: React.FC<AddVehicleDialogProps> = ({ open, onClose }) =>
 
   const onSubmit = async (data: VehicleFormData) => {
     try {
+      // Adicionando a data de compra atual se não for fornecida
+      if (!data.purchaseDate) {
+        data.purchaseDate = new Date();
+      }
+      
       await createVehicleMutation.mutateAsync(data);
       handleCloseDialog();
     } catch (error) {
@@ -151,14 +194,22 @@ const AddVehicleDialog: React.FC<AddVehicleDialogProps> = ({ open, onClose }) =>
               <Controller
                 name="plate"
                 control={control}
-                rules={{ required: 'Placa é obrigatória' }}
+                rules={{ 
+                  required: 'Placa é obrigatória',
+                  pattern: {
+                    value: /^[A-Z0-9]{7}$/,
+                    message: 'Formato inválido. Use 7 caracteres (letras maiúsculas e números)'
+                  }
+                }}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     label="Placa"
                     fullWidth
+                    placeholder="ABC1234"
                     error={!!errors.plate}
                     helperText={errors.plate?.message}
+                    onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                   />
                 )}
               />
@@ -177,6 +228,68 @@ const AddVehicleDialog: React.FC<AddVehicleDialogProps> = ({ open, onClose }) =>
                     error={!!errors.color}
                     helperText={errors.color?.message}
                   />
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <Controller
+                name="chassisNumber"
+                control={control}
+                rules={{ required: 'Número do chassi é obrigatório' }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Número do Chassi"
+                    fullWidth
+                    error={!!errors.chassisNumber}
+                    helperText={errors.chassisNumber?.message}
+                  />
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <Controller
+                name="renavamCode"
+                control={control}
+                rules={{ required: 'Código RENAVAM é obrigatório' }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Código RENAVAM"
+                    fullWidth
+                    error={!!errors.renavamCode}
+                    helperText={errors.renavamCode?.message}
+                  />
+                )}
+              />
+            </Grid>
+            
+            <Grid item xs={12} md={4}>
+              <Controller
+                name="categoryId"
+                control={control}
+                rules={{ required: 'Categoria é obrigatória' }}
+                render={({ field }) => (
+                  <FormControl fullWidth error={!!errors.categoryId}>
+                    <InputLabel id="category-label">Categoria</InputLabel>
+                    <Select
+                      {...field}
+                      labelId="category-label"
+                      label="Categoria"
+                      disabled={loadingCategories}
+                    >
+                      {categories.map((category) => (
+                        <MenuItem key={category.id} value={category.id}>
+                          {category.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.categoryId && (
+                      <FormHelperText>{errors.categoryId.message}</FormHelperText>
+                    )}
+                  </FormControl>
                 )}
               />
             </Grid>
@@ -236,16 +349,16 @@ const AddVehicleDialog: React.FC<AddVehicleDialogProps> = ({ open, onClose }) =>
                 name="purchaseValue"
                 control={control}
                 rules={{ 
-                  required: 'Valor da diária é obrigatório',
+                  required: 'Valor de compra é obrigatório',
                   min: {
                     value: 0,
-                    message: 'Valor da diária deve ser positivo'
+                    message: 'Valor deve ser positivo'
                   }
                 }}
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Valor da Diária (R$)"
+                    label="Valor de Compra (R$)"
                     type="number"
                     fullWidth
                     error={!!errors.purchaseValue}

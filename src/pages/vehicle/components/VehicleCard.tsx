@@ -32,6 +32,7 @@ interface VehicleCardProps {
 }
 
 const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onEdit, onDelete }) => {
+  console.log('vehicle', vehicle)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -52,17 +53,6 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onEdit, onDelete }) 
           overflow: 'hidden',
         }}
       >
-        {vehicle.images && vehicle.images.length > 0 ? (
-          <img
-            src={vehicle.images[0]}
-            alt={`${vehicle.make} ${vehicle.model}`}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
-          />
-        ) : (
           <Box
             sx={{
               display: 'flex',
@@ -74,7 +64,6 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onEdit, onDelete }) 
           >
             <CarIcon fontSize="large" />
           </Box>
-        )}
         
         <Chip
           label={vehicle.status}
@@ -91,7 +80,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onEdit, onDelete }) 
       <CardContent sx={{ flexGrow: 1 }}>
         <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
           <Typography variant="h6" fontWeight="bold">
-            {vehicle.make} {vehicle.model}
+            {vehicle.brand} {vehicle.model}
           </Typography>
           
           <IconButton size="small" onClick={handleMenuOpen}>
@@ -127,7 +116,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onEdit, onDelete }) 
         </Box>
         
         <Typography variant="body2" color="textSecondary" gutterBottom>
-          {vehicle.year} • {vehicle.licensePlate} • {vehicle.color}
+          {vehicle.year} • {vehicle.plate} • {vehicle.color}
         </Typography>
         
         <Box mt={2} display="flex" justifyContent="space-between">
@@ -136,7 +125,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onEdit, onDelete }) 
               Diária
             </Typography>
             <Typography variant="subtitle1" fontWeight="bold">
-              {formatCurrency(vehicle.dailyRate)}
+              {formatCurrency(vehicle.purchaseValue || 0)}
             </Typography>
           </Box>
           
