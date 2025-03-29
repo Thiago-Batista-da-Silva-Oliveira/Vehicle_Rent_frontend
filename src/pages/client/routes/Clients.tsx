@@ -31,8 +31,6 @@ import {
   Paper,
   Tooltip,
   CircularProgress,
-  FormControlLabel,
-  Switch,
   useTheme,
   alpha,
   Select,
@@ -44,15 +42,10 @@ import {
   Add as AddIcon,
   MoreVert as MoreVertIcon,
   Edit as EditIcon,
-  Delete as DeleteIcon,
   Block as BlockIcon,
   Phone as PhoneIcon,
   Email as EmailIcon,
-  Directions as DirectionsIcon,
-  Assignment as AssignmentIcon,
   FilterList as FilterIcon,
-  Sort as SortIcon,
-  Person as PersonIcon,
   DirectionsCar as CarIcon,
   Link as LinkIcon,
   Check as CheckIcon,
@@ -522,7 +515,7 @@ const AssociateVehicleForm: React.FC<{
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <CarIcon sx={{ mr: 1, color: 'primary.main' }} />
                       <Typography>
-                        {vehicle.make} {vehicle.model} - {vehicle.licensePlate}
+                        {vehicle.brand} {vehicle.model} - {vehicle.plate}
                       </Typography>
                     </Box>
                   </MenuItem>
@@ -547,7 +540,7 @@ const AssociateVehicleForm: React.FC<{
                               Make & Model
                             </Typography>
                             <Typography variant="body2">
-                              {vehicle.make} {vehicle.model}
+                              {vehicle.brand} {vehicle.model}
                             </Typography>
                           </Grid>
                           <Grid item xs={12} sm={6}>
@@ -555,7 +548,7 @@ const AssociateVehicleForm: React.FC<{
                               License Plate
                             </Typography>
                             <Typography variant="body2">
-                              {vehicle.licensePlate}
+                              {vehicle.plate}
                             </Typography>
                           </Grid>
                           <Grid item xs={12} sm={6}>
