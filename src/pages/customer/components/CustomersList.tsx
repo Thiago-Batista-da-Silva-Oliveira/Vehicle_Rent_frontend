@@ -26,6 +26,10 @@ import {
   FormControl,
   InputLabel,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -35,6 +39,7 @@ import {
   Email as EmailIcon,
   FilterList as FilterIcon,
   Link as LinkIcon,
+  Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { Customer } from '../../../types/Customer';
 import { useCustomers } from '../../../services/customerService';
@@ -43,15 +48,17 @@ import { formatDate, formatPhoneNumber } from '../../../utils/formatters';
 interface CustomersListProps {
   onEdit: (customer: Customer) => void;
   onAssociateVehicle: (customer: Customer) => void;
+  onDelete: (customer: Customer) => void;
 }
 
-const CustomersList: React.FC<CustomersListProps> = ({ onEdit, onAssociateVehicle }) => {
+const CustomersList: React.FC<CustomersListProps> = ({ onEdit, onAssociateVehicle, onDelete }) => {
   const theme = useTheme();
   const { data: customers = [], isLoading, error } = useCustomers();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, customer: Customer) => {
     setAnchorEl(event.currentTarget);
@@ -74,6 +81,24 @@ const CustomersList: React.FC<CustomersListProps> = ({ onEdit, onAssociateVehicl
       onAssociateVehicle(selectedCustomer);
       handleCloseMenu();
     }
+  };
+
+  const handleDeleteClick = () => {
+    if (selectedCustomer) {
+      setDeleteDialogOpen(true);
+      handleCloseMenu();
+    }
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedCustomer) {
+      onDelete(selectedCustomer);
+      setDeleteDialogOpen(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
   };
 
   const filteredCustomers = customers.filter(customer => {
@@ -241,7 +266,38 @@ const CustomersList: React.FC<CustomersListProps> = ({ onEdit, onAssociateVehicl
           </ListItemIcon>
           <ListItemText>Associar Veículo</ListItemText>
         </MenuItem>
+        <MenuItem onClick={handleDeleteClick}>
+          <ListItemIcon>
+            <DeleteIcon fontSize="small" color="error" />
+          </ListItemIcon>
+          <ListItemText sx={{ color: 'error.main' }}>Excluir Cliente</ListItemText>
+        </MenuItem>
       </Menu>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Confirmar Exclusão</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Tem certeza que deseja excluir o cliente {selectedCustomer?.name}? Esta ação não pode ser desfeita.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel}>Cancelar</Button>
+          <Button 
+            onClick={handleDeleteConfirm} 
+            variant="contained" 
+            color="error"
+            startIcon={<DeleteIcon />}
+          >
+            Excluir
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

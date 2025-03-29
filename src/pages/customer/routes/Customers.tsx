@@ -14,6 +14,7 @@ import { Customer, CustomerFormData } from '../../../types/Customer';
 import { 
   useCreateCustomer, 
   useUpdateCustomer,
+  useDeleteCustomer,
 } from '../../../services/customerService';
 
 import CustomersList from '../components/CustomersList';
@@ -23,6 +24,7 @@ import AssociateVehicleForm from '../components/AssociateVehicleForm';
 const CustomersPage: React.FC = () => {
   const createCustomer = useCreateCustomer();
   const updateCustomer = useUpdateCustomer();
+  const deleteCustomer = useDeleteCustomer();
   const [tabValue, setTabValue] = React.useState(0);
   const [customerFormOpen, setCustomerFormOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -45,6 +47,14 @@ const CustomersPage: React.FC = () => {
   const handleAssociateVehicle = (customer: Customer) => {
     setSelectedCustomer(customer);
     setAssociateVehicleOpen(true);
+  };
+
+  const handleDeleteCustomer = async (customer: Customer) => {
+    try {
+      await deleteCustomer.mutateAsync(customer.id);
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+    }
   };
 
   const handleCustomerFormClose = () => {
@@ -113,6 +123,7 @@ const CustomersPage: React.FC = () => {
       <CustomersList 
         onEdit={handleEditCustomer}
         onAssociateVehicle={handleAssociateVehicle}
+        onDelete={handleDeleteCustomer}
       />
 
       <CustomerForm
