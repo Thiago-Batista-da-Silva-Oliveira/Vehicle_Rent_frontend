@@ -9,9 +9,8 @@ export interface CustomerApiResponse {
   name: string;
   email: string;
   phone: string;
-  document: string;
-  documentType: 'CPF' | 'CNPJ';
-  birthDate?: string;
+  cpf: string;
+  cnpj?: string;
   type: 'INDIVIDUAL' | 'COMPANY';
   address: {
     street: string;
@@ -22,10 +21,8 @@ export interface CustomerApiResponse {
     state: string;
     zipCode: string;
   };
-  active: boolean;
   createdAt: string;
   updatedAt: string;
-  tenantId: string;
 }
 
 export interface CustomerDocumentApiResponse {
@@ -41,7 +38,8 @@ export interface CustomerDocumentApiResponse {
 // API functions
 const apiCreateCustomer = async (customer: CustomerFormData): Promise<Customer> => {
   try {
-    const response = await api.post<CustomerApiResponse>('/customers', customer);
+    const apiData = mapCustomerToAPI(customer);
+    const response = await api.post<CustomerApiResponse>('/customers', apiData);
     return mapCustomerFromAPI(response.data);
   } catch (error) {
     throw new Error('Falha ao criar cliente');
@@ -68,7 +66,8 @@ const apiGetCustomerById = async (id: string): Promise<Customer> => {
 
 const apiUpdateCustomer = async (id: string, customer: Partial<CustomerFormData>): Promise<Customer> => {
   try {
-    const response = await api.put<CustomerApiResponse>(`/customers/${id}`, customer);
+    const apiData = mapCustomerToAPI(customer as CustomerFormData);
+    const response = await api.put<CustomerApiResponse>(`/customers/${id}`, apiData);
     return mapCustomerFromAPI(response.data);
   } catch (error) {
     throw new Error('Falha ao atualizar cliente');
@@ -145,15 +144,34 @@ const mapCustomerFromAPI = (apiCustomer: CustomerApiResponse): Customer => {
     name: apiCustomer.name,
     email: apiCustomer.email,
     phone: apiCustomer.phone,
-    document: apiCustomer.document,
-    documentType: apiCustomer.documentType,
-    birthDate: apiCustomer.birthDate ? new Date(apiCustomer.birthDate) : undefined,
+    document: apiCustomer.cpf || apiCustomer.cnpj || '',
+    documentType: apiCustomer.cpf ? 'CPF' : 'CNPJ',
     type: apiCustomer.type,
     address: apiCustomer.address,
-    active: apiCustomer.active,
     createdAt: new Date(apiCustomer.createdAt),
     updatedAt: new Date(apiCustomer.updatedAt),
-    tenantId: apiCustomer.tenantId,
+  };
+};
+
+const mapCustomerToAPI = (customer: CustomerFormData): any => {
+  const baseData = {
+    name: customer.name,
+    email: customer.email,
+    phone: customer.phone,
+    type: customer.type,
+    address: customer.address,
+  };
+
+  if (customer.type === 'INDIVIDUAL') {
+    return {
+      ...baseData,
+      cpf: customer.document,
+    };
+  }
+
+  return {
+    ...baseData,
+    cnpj: customer.document,
   };
 };
 

@@ -67,7 +67,7 @@ const CustomersList: React.FC<{
   const theme = useTheme();
   const { data: customers = [], isLoading, error } = useCustomers();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   
@@ -100,11 +100,9 @@ const CustomersList: React.FC<{
       customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (customer.phone && customer.phone.includes(searchTerm));
     
-    const matchesStatus = statusFilter === 'all' || 
-      (statusFilter === 'active' && customer.active) ||
-      (statusFilter === 'inactive' && !customer.active);
+    const matchesType = typeFilter === 'all' || customer.type === typeFilter;
     
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesType;
   });
 
   if (isLoading) {
@@ -142,15 +140,15 @@ const CustomersList: React.FC<{
         />
         <Box sx={{ display: 'flex', gap: 1, minWidth: { sm: '320px' } }}>
           <FormControl variant="outlined" fullWidth size="medium">
-            <InputLabel>Status</InputLabel>
+            <InputLabel>Tipo</InputLabel>
             <Select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              label="Status"
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              label="Tipo"
             >
-              <MenuItem value="all">Todos os Status</MenuItem>
-              <MenuItem value="active">Ativos</MenuItem>
-              <MenuItem value="inactive">Inativos</MenuItem>
+              <MenuItem value="all">Todos os Tipos</MenuItem>
+              <MenuItem value="INDIVIDUAL">Pessoa Física</MenuItem>
+              <MenuItem value="COMPANY">Pessoa Jurídica</MenuItem>
             </Select>
           </FormControl>
           <Button variant="outlined" startIcon={<FilterIcon />}>
@@ -166,7 +164,7 @@ const CustomersList: React.FC<{
               <TableCell>Nome do Cliente</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Telefone</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell>Tipo</TableCell>
               <TableCell>Cadastro</TableCell>
               <TableCell align="right">Ações</TableCell>
             </TableRow>
@@ -193,9 +191,7 @@ const CustomersList: React.FC<{
                       <Avatar 
                         sx={{ 
                           mr: 2, 
-                          bgcolor: customer.active 
-                            ? theme.palette.primary.main 
-                            : theme.palette.grey[400],
+                          bgcolor: theme.palette.primary.main,
                         }}
                       >
                         {customer.name.charAt(0).toUpperCase()}
@@ -224,8 +220,8 @@ const CustomersList: React.FC<{
                   </TableCell>
                   <TableCell>
                     <Chip 
-                      label={customer.active ? 'Ativo' : 'Inativo'} 
-                      color={customer.active ? 'success' : 'default'}
+                      label={customer.type === 'INDIVIDUAL' ? 'Pessoa Física' : 'Pessoa Jurídica'} 
+                      color="primary"
                       size="small"
                     />
                   </TableCell>
@@ -263,21 +259,6 @@ const CustomersList: React.FC<{
           </ListItemIcon>
           <ListItemText>Associar Veículo</ListItemText>
         </MenuItem>
-        <Divider />
-        <MenuItem
-          sx={{ color: selectedCustomer?.active ? 'error.main' : 'success.main' }}
-        >
-          <ListItemIcon>
-            {selectedCustomer?.active ? (
-              <BlockIcon fontSize="small" color="error" />
-            ) : (
-              <CheckIcon fontSize="small" color="success" />
-            )}
-          </ListItemIcon>
-          <ListItemText>
-            {selectedCustomer?.active ? 'Desativar Cliente' : 'Ativar Cliente'}
-          </ListItemText>
-        </MenuItem>
       </Menu>
     </Box>
   );
@@ -295,7 +276,6 @@ const CustomerForm: React.FC<{
     phone: customer?.phone || '',
     document: customer?.document || '',
     documentType: customer?.documentType || 'CPF',
-    birthDate: customer?.birthDate,
     type: customer?.type || 'INDIVIDUAL',
     address: customer?.address || {
       street: '',
@@ -306,8 +286,6 @@ const CustomerForm: React.FC<{
       state: '',
       zipCode: '',
     },
-    active: customer?.active ?? true,
-    tenantId: '11111111-1111-1111-1111-111111111111', // TODO: Get from context
   };
 
   const [formData, setFormData] = useState<CustomerFormData>(initialFormData);
@@ -345,6 +323,10 @@ const CustomerForm: React.FC<{
     
     if (!formData.document.trim()) {
       newErrors.document = 'Documento é obrigatório';
+    } else if (formData.documentType === 'CPF' && !/^\d{11}$/.test(formData.document)) {
+      newErrors.document = 'CPF inválido';
+    } else if (formData.documentType === 'CNPJ' && !/^\d{14}$/.test(formData.document)) {
+      newErrors.document = 'CNPJ inválido';
     }
     
     if (!formData.address.street.trim()) {
@@ -365,6 +347,8 @@ const CustomerForm: React.FC<{
     
     if (!formData.address.zipCode.trim()) {
       newErrors.zipCode = 'CEP é obrigatório';
+    } else if (!/^\d{8}$/.test(formData.address.zipCode)) {
+      newErrors.zipCode = 'CEP inválido';
     }
     
     setErrors(newErrors);
@@ -461,6 +445,10 @@ const CustomerForm: React.FC<{
               required
               error={!!errors.document}
               helperText={errors.document}
+              inputProps={{
+                maxLength: formData.documentType === 'CPF' ? 11 : 14,
+                pattern: formData.documentType === 'CPF' ? '[0-9]*' : '[0-9]*',
+              }}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -476,20 +464,6 @@ const CustomerForm: React.FC<{
                 <MenuItem value="COMPANY">Pessoa Jurídica</MenuItem>
               </Select>
             </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              name="birthDate"
-              label="Data de Nascimento"
-              type="date"
-              value={formData.birthDate ? new Date(formData.birthDate).toISOString().split('T')[0] : ''}
-              onChange={(e) => {
-                const date = e.target.value ? new Date(e.target.value) : undefined;
-                setFormData(prev => ({ ...prev, birthDate: date }));
-              }}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-            />
           </Grid>
           
           <Grid item xs={12}>
@@ -574,6 +548,10 @@ const CustomerForm: React.FC<{
               required
               error={!!errors.zipCode}
               helperText={errors.zipCode}
+              inputProps={{
+                maxLength: 8,
+                pattern: '[0-9]*',
+              }}
             />
           </Grid>
         </Grid>
@@ -846,8 +824,8 @@ const CustomersPage: React.FC = () => {
           variant="fullWidth"
         >
           <Tab label="Todos os Clientes" />
-          <Tab label="Ativos" />
-          <Tab label="Inativos" />
+          <Tab label="Pessoa Física" />
+          <Tab label="Pessoa Jurídica" />
         </Tabs>
       </Card>
 

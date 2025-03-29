@@ -1,5 +1,4 @@
 export type CustomerType = 'INDIVIDUAL' | 'COMPANY';
-export type DocumentType = 'CPF' | 'CNPJ';
 
 export interface Address {
   street: string;
@@ -17,14 +16,11 @@ export interface Customer {
   email: string;
   phone: string;
   document: string;
-  documentType: DocumentType;
-  birthDate?: Date;
+  documentType: 'CPF' | 'CNPJ';
   type: CustomerType;
   address: Address;
-  active: boolean;
   createdAt: Date;
   updatedAt: Date;
-  tenantId: string;
 }
 
 export interface CustomerFormData {
@@ -32,12 +28,9 @@ export interface CustomerFormData {
   email: string;
   phone: string;
   document: string;
-  documentType: DocumentType;
-  birthDate?: Date;
+  documentType: 'CPF' | 'CNPJ';
   type: CustomerType;
   address: Address;
-  active: boolean;
-  tenantId: string;
 }
 
 export interface CustomerDocument {
@@ -52,7 +45,5 @@ export interface CustomerDocument {
 
 export interface GetCustomersParams {
   type?: CustomerType;
-  rating?: number;
-  active?: boolean;
   search?: string;
 } 
