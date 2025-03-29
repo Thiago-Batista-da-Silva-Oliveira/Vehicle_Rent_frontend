@@ -8,7 +8,7 @@ const Vehicles = React.lazy(() => import('./pages/vehicle/routes/index'));
 const Calendar = React.lazy(() => import('./pages/calendar/routes/index'));
 const Map = React.lazy(() => import('./pages/map/routes/index'));
 const Settings = React.lazy(() => import('./pages/setting/routes/index'));
-const Clients = React.lazy(() => import('./pages/client/routes/index'));
+const Clients = React.lazy(() => import('./pages/customer/routes/index'));
 const FineManagement = React.lazy(() => import('./pages/fineManagement/routes/index'));
 const Collection = React.lazy(() => import('./pages/collection/routes/index'));
 

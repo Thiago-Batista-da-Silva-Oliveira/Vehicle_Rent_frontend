@@ -592,7 +592,7 @@ const AssociateVehicleForm: React.FC<{
   );
 };
 
-const ClientsPage: React.FC = () => {
+const CustomersPage: React.FC = () => {
   const theme = useTheme();
   const createClient = useCreateClient();
   const updateClient = useUpdateClient();
@@ -707,4 +707,4 @@ const ClientsPage: React.FC = () => {
   );
 };
 
-export default ClientsPage;
+export default CustomersPage;
