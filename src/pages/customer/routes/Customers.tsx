@@ -50,26 +50,30 @@ import {
   Link as LinkIcon,
   Check as CheckIcon,
 } from '@mui/icons-material';
-import { Client } from '../../../types/Client';
-import { useClients, useCreateClient, useUpdateClient } from '../../../services/clientService';
+import { Customer, CustomerFormData } from '../../../types/Customer';
+import { 
+  useCustomers, 
+  useCreateCustomer, 
+  useUpdateCustomer,
+  useDeleteCustomer
+} from '../../../services/customerService';
 import { formatDate, formatPhoneNumber } from '../../../utils/formatters';
 import { useVehicles } from '../../../services/vehicleService';
 
-
 const CustomersList: React.FC<{
-  onEdit: (client: Client) => void;
-  onAssociateVehicle: (client: Client) => void;
+  onEdit: (customer: Customer) => void;
+  onAssociateVehicle: (customer: Customer) => void;
 }> = ({ onEdit, onAssociateVehicle }) => {
   const theme = useTheme();
-  const { data: clients = [], isLoading, error } = useClients();
+  const { data: customers = [], isLoading, error } = useCustomers();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   
-  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, client: Client) => {
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, customer: Customer) => {
     setAnchorEl(event.currentTarget);
-    setSelectedClient(client);
+    setSelectedCustomer(customer);
   };
 
   const handleCloseMenu = () => {
@@ -77,26 +81,28 @@ const CustomersList: React.FC<{
   };
 
   const handleEdit = () => {
-    if (selectedClient) {
-      onEdit(selectedClient);
+    if (selectedCustomer) {
+      onEdit(selectedCustomer);
       handleCloseMenu();
     }
   };
 
   const handleAssociateVehicle = () => {
-    if (selectedClient) {
-      onAssociateVehicle(selectedClient);
+    if (selectedCustomer) {
+      onAssociateVehicle(selectedCustomer);
       handleCloseMenu();
     }
   };
 
-  const filteredClients = clients.filter(client => {
+  const filteredCustomers = customers.filter(customer => {
     const matchesSearch = 
-      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (client.phone && client.phone.includes(searchTerm));
+      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (customer.phone && customer.phone.includes(searchTerm));
     
-    const matchesStatus = statusFilter === 'all' || client.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'active' && customer.active) ||
+      (statusFilter === 'inactive' && !customer.active);
     
     return matchesSearch && matchesStatus;
   });
@@ -112,7 +118,7 @@ const CustomersList: React.FC<{
   if (error) {
     return (
       <Box my={2}>
-        <Typography color="error">Error loading clients. Please try again.</Typography>
+        <Typography color="error">Erro ao carregar clientes. Por favor, tente novamente.</Typography>
       </Box>
     );
   }
@@ -121,7 +127,7 @@ const CustomersList: React.FC<{
     <Box>
       <Box sx={{ mb: 3, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
         <TextField
-          placeholder="Search clients..."
+          placeholder="Buscar clientes..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           variant="outlined"
@@ -142,13 +148,13 @@ const CustomersList: React.FC<{
               onChange={(e) => setStatusFilter(e.target.value)}
               label="Status"
             >
-              <MenuItem value="all">All Statuses</MenuItem>
-              <MenuItem value="active">Active</MenuItem>
-              <MenuItem value="inactive">Inactive</MenuItem>
+              <MenuItem value="all">Todos os Status</MenuItem>
+              <MenuItem value="active">Ativos</MenuItem>
+              <MenuItem value="inactive">Inativos</MenuItem>
             </Select>
           </FormControl>
           <Button variant="outlined" startIcon={<FilterIcon />}>
-            More Filters
+            Mais Filtros
           </Button>
         </Box>
       </Box>
@@ -157,27 +163,27 @@ const CustomersList: React.FC<{
         <Table>
           <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
             <TableRow>
-              <TableCell>Client Name</TableCell>
+              <TableCell>Nome do Cliente</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Phone</TableCell>
+              <TableCell>Telefone</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell>Created</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell>Cadastro</TableCell>
+              <TableCell align="right">Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredClients.length === 0 ? (
+            {filteredCustomers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
                   <Typography variant="body1" color="textSecondary">
-                    No clients found. Try adjusting your filters or add a new client.
+                    Nenhum cliente encontrado. Tente ajustar seus filtros ou adicionar um novo cliente.
                   </Typography>
                 </TableCell>
               </TableRow>
             ) : (
-              filteredClients.map((client) => (
+              filteredCustomers.map((customer) => (
                 <TableRow 
-                  key={client.id}
+                  key={customer.id}
                   sx={{ 
                     '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.04) },
                   }}
@@ -187,49 +193,47 @@ const CustomersList: React.FC<{
                       <Avatar 
                         sx={{ 
                           mr: 2, 
-                          bgcolor: client.status === 'active' 
+                          bgcolor: customer.active 
                             ? theme.palette.primary.main 
                             : theme.palette.grey[400],
                         }}
                       >
-                        {client.name.charAt(0).toUpperCase()}
+                        {customer.name.charAt(0).toUpperCase()}
                       </Avatar>
                       <Box>
                         <Typography variant="body1" fontWeight="medium">
-                          {client.name}
+                          {customer.name}
                         </Typography>
-                        {client.documentId && (
-                          <Typography variant="caption" color="textSecondary">
-                            ID: {client.documentId}
-                          </Typography>
-                        )}
+                        <Typography variant="caption" color="textSecondary">
+                          {customer.documentType}: {customer.document}
+                        </Typography>
                       </Box>
                     </Box>
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <EmailIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
-                      {client.email}
+                      {customer.email}
                     </Box>
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <PhoneIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
-                      {client.phone ? formatPhoneNumber(client.phone) : '-'}
+                      {customer.phone ? formatPhoneNumber(customer.phone) : '-'}
                     </Box>
                   </TableCell>
                   <TableCell>
                     <Chip 
-                      label={client.status} 
-                      color={client.status === 'active' ? 'success' : 'default'}
+                      label={customer.active ? 'Ativo' : 'Inativo'} 
+                      color={customer.active ? 'success' : 'default'}
                       size="small"
                     />
                   </TableCell>
-                  <TableCell>{formatDate(client.createdAt)}</TableCell>
+                  <TableCell>{formatDate(customer.createdAt.toISOString())}</TableCell>
                   <TableCell align="right">
-                    <Tooltip title="More actions">
+                    <Tooltip title="Mais ações">
                       <IconButton
-                        onClick={(e) => handleOpenMenu(e, client)}
+                        onClick={(e) => handleOpenMenu(e, customer)}
                       >
                         <MoreVertIcon />
                       </IconButton>
@@ -251,27 +255,27 @@ const CustomersList: React.FC<{
           <ListItemIcon>
             <EditIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Edit Client</ListItemText>
+          <ListItemText>Editar Cliente</ListItemText>
         </MenuItem>
         <MenuItem onClick={handleAssociateVehicle}>
           <ListItemIcon>
             <LinkIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Associate Vehicle</ListItemText>
+          <ListItemText>Associar Veículo</ListItemText>
         </MenuItem>
         <Divider />
         <MenuItem
-          sx={{ color: selectedClient?.status === 'active' ? 'error.main' : 'success.main' }}
+          sx={{ color: selectedCustomer?.active ? 'error.main' : 'success.main' }}
         >
           <ListItemIcon>
-            {selectedClient?.status === 'active' ? (
+            {selectedCustomer?.active ? (
               <BlockIcon fontSize="small" color="error" />
             ) : (
               <CheckIcon fontSize="small" color="success" />
             )}
           </ListItemIcon>
           <ListItemText>
-            {selectedClient?.status === 'active' ? 'Deactivate Client' : 'Activate Client'}
+            {selectedCustomer?.active ? 'Desativar Cliente' : 'Ativar Cliente'}
           </ListItemText>
         </MenuItem>
       </Menu>
@@ -279,48 +283,88 @@ const CustomersList: React.FC<{
   );
 };
 
-const ClientForm: React.FC<{
+const CustomerForm: React.FC<{
   open: boolean;
-  client?: Client | null;
+  customer?: Customer | null;
   onClose: () => void;
-  onSubmit: (data: any) => void;
-}> = ({ open, client, onClose, onSubmit }) => {
-  const initialFormData = {
-    name: client?.name || '',
-    email: client?.email || '',
-    phone: client?.phone || '',
-    address: client?.address || '',
-    documentId: client?.documentId || '',
+  onSubmit: (data: CustomerFormData) => void;
+}> = ({ open, customer, onClose, onSubmit }) => {
+  const initialFormData: CustomerFormData = {
+    name: customer?.name || '',
+    email: customer?.email || '',
+    phone: customer?.phone || '',
+    document: customer?.document || '',
+    documentType: customer?.documentType || 'CPF',
+    birthDate: customer?.birthDate,
+    type: customer?.type || 'INDIVIDUAL',
+    address: customer?.address || {
+      street: '',
+      number: '',
+      complement: '',
+      neighborhood: '',
+      city: '',
+      state: '',
+      zipCode: '',
+    },
+    active: customer?.active ?? true,
+    tenantId: '11111111-1111-1111-1111-111111111111', // TODO: Get from context
   };
 
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState<CustomerFormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user types
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
+  };
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      address: { ...prev.address, [name]: value }
+    }));
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = 'Nome é obrigatório';
     }
     
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'Email é obrigatório';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = 'Email inválido';
     }
     
-    if (formData.phone && !/^[0-9()-\s+]+$/.test(formData.phone)) {
-      newErrors.phone = 'Phone number is invalid';
+    if (!formData.document.trim()) {
+      newErrors.document = 'Documento é obrigatório';
+    }
+    
+    if (!formData.address.street.trim()) {
+      newErrors.street = 'Rua é obrigatória';
+    }
+    
+    if (!formData.address.number.trim()) {
+      newErrors.number = 'Número é obrigatório';
+    }
+    
+    if (!formData.address.city.trim()) {
+      newErrors.city = 'Cidade é obrigatória';
+    }
+    
+    if (!formData.address.state.trim()) {
+      newErrors.state = 'Estado é obrigatório';
+    }
+    
+    if (!formData.address.zipCode.trim()) {
+      newErrors.zipCode = 'CEP é obrigatório';
     }
     
     setErrors(newErrors);
@@ -337,18 +381,18 @@ const ClientForm: React.FC<{
     <Dialog 
       open={open} 
       onClose={onClose}
-      maxWidth="sm"
+      maxWidth="md"
       fullWidth
     >
       <DialogTitle>
-        {client ? 'Edit Client' : 'Add New Client'}
+        {customer ? 'Editar Cliente' : 'Adicionar Novo Cliente'}
       </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={2}>
-          <Grid item xs={12}>
+          <Grid item xs={12} sm={6}>
             <TextField
               name="name"
-              label="Full Name"
+              label="Nome Completo"
               value={formData.name}
               onChange={handleChange}
               fullWidth
@@ -360,7 +404,7 @@ const ClientForm: React.FC<{
           <Grid item xs={12} sm={6}>
             <TextField
               name="email"
-              label="Email Address"
+              label="Email"
               type="email"
               value={formData.email}
               onChange={handleChange}
@@ -373,7 +417,7 @@ const ClientForm: React.FC<{
           <Grid item xs={12} sm={6}>
             <TextField
               name="phone"
-              label="Phone Number"
+              label="Telefone"
               value={formData.phone}
               onChange={handleChange}
               fullWidth
@@ -388,36 +432,160 @@ const ClientForm: React.FC<{
               }}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth required error={!!errors.document}>
+              <InputLabel>Tipo de Documento</InputLabel>
+              <Select
+                name="documentType"
+                value={formData.documentType}
+                onChange={(e) => handleChange(e as React.ChangeEvent<HTMLInputElement>)}
+                label="Tipo de Documento"
+              >
+                <MenuItem value="CPF">CPF</MenuItem>
+                <MenuItem value="CNPJ">CNPJ</MenuItem>
+              </Select>
+              {errors.document && (
+                <Typography color="error" variant="caption">
+                  {errors.document}
+                </Typography>
+              )}
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
             <TextField
-              name="address"
-              label="Address"
-              value={formData.address}
+              name="document"
+              label="Número do Documento"
+              value={formData.document}
               onChange={handleChange}
               fullWidth
-              multiline
-              rows={2}
+              required
+              error={!!errors.document}
+              helperText={errors.document}
             />
           </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <InputLabel>Tipo de Cliente</InputLabel>
+              <Select
+                name="type"
+                value={formData.type}
+                onChange={(e) => handleChange(e as React.ChangeEvent<HTMLInputElement>)}
+                label="Tipo de Cliente"
+              >
+                <MenuItem value="INDIVIDUAL">Pessoa Física</MenuItem>
+                <MenuItem value="COMPANY">Pessoa Jurídica</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              name="birthDate"
+              label="Data de Nascimento"
+              type="date"
+              value={formData.birthDate ? new Date(formData.birthDate).toISOString().split('T')[0] : ''}
+              onChange={(e) => {
+                const date = e.target.value ? new Date(e.target.value) : undefined;
+                setFormData(prev => ({ ...prev, birthDate: date }));
+              }}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          
+          <Grid item xs={12}>
+            <Typography variant="subtitle1" gutterBottom>
+              Endereço
+            </Typography>
+          </Grid>
+          
           <Grid item xs={12}>
             <TextField
-              name="documentId"
-              label="Document ID / License Number"
-              value={formData.documentId}
-              onChange={handleChange}
+              name="street"
+              label="Rua"
+              value={formData.address.street}
+              onChange={handleAddressChange}
               fullWidth
+              required
+              error={!!errors.street}
+              helperText={errors.street}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              name="number"
+              label="Número"
+              value={formData.address.number}
+              onChange={handleAddressChange}
+              fullWidth
+              required
+              error={!!errors.number}
+              helperText={errors.number}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              name="complement"
+              label="Complemento"
+              value={formData.address.complement}
+              onChange={handleAddressChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              name="neighborhood"
+              label="Bairro"
+              value={formData.address.neighborhood}
+              onChange={handleAddressChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              name="city"
+              label="Cidade"
+              value={formData.address.city}
+              onChange={handleAddressChange}
+              fullWidth
+              required
+              error={!!errors.city}
+              helperText={errors.city}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              name="state"
+              label="Estado"
+              value={formData.address.state}
+              onChange={handleAddressChange}
+              fullWidth
+              required
+              error={!!errors.state}
+              helperText={errors.state}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              name="zipCode"
+              label="CEP"
+              value={formData.address.zipCode}
+              onChange={handleAddressChange}
+              fullWidth
+              required
+              error={!!errors.zipCode}
+              helperText={errors.zipCode}
             />
           </Grid>
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>Cancelar</Button>
         <Button 
           onClick={handleSubmit} 
           variant="contained"
-          startIcon={client ? <EditIcon /> : <AddIcon />}
+          startIcon={customer ? <EditIcon /> : <AddIcon />}
         >
-          {client ? 'Update Client' : 'Add Client'}
+          {customer ? 'Atualizar Cliente' : 'Adicionar Cliente'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -426,27 +594,26 @@ const ClientForm: React.FC<{
 
 const AssociateVehicleForm: React.FC<{
   open: boolean;
-  client: Client | null;
+  customer: Customer | null;
   onClose: () => void;
-  onSubmit: (clientId: string, vehicleId: string) => void;
-}> = ({ open, client, onClose, onSubmit }) => {
+  onSubmit: (customerId: string, vehicleId: string) => void;
+}> = ({ open, customer, onClose, onSubmit }) => {
   const { data: vehicles = [], isLoading } = useVehicles();
   const [selectedVehicleId, setSelectedVehicleId] = useState('');
   const [error, setError] = useState('');
 
-  // Filter out vehicles that are already rented or in maintenance
   const availableVehicles = vehicles.filter(
-    vehicle => vehicle.status === 'available'
+    vehicle => vehicle.status === 'AVAILABLE'
   );
 
   const handleSubmit = () => {
     if (!selectedVehicleId) {
-      setError('Please select a vehicle');
+      setError('Por favor, selecione um veículo');
       return;
     }
 
-    if (client) {
-      onSubmit(client.id, selectedVehicleId);
+    if (customer) {
+      onSubmit(customer.id, selectedVehicleId);
     }
   };
 
@@ -457,12 +624,12 @@ const AssociateVehicleForm: React.FC<{
       maxWidth="sm"
       fullWidth
     >
-      <DialogTitle>Associate Vehicle to Client</DialogTitle>
+      <DialogTitle>Associar Veículo ao Cliente</DialogTitle>
       <DialogContent dividers>
-        {client && (
+        {customer && (
           <Box mb={3}>
             <Typography variant="subtitle1" gutterBottom>
-              Client Information
+              Informações do Cliente
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <Avatar 
@@ -471,14 +638,14 @@ const AssociateVehicleForm: React.FC<{
                   bgcolor: 'primary.main',
                 }}
               >
-                {client.name.charAt(0).toUpperCase()}
+                {customer.name.charAt(0).toUpperCase()}
               </Avatar>
               <Box>
                 <Typography variant="body1" fontWeight="medium">
-                  {client.name}
+                  {customer.name}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  {client.email}
+                  {customer.email}
                 </Typography>
               </Box>
             </Box>
@@ -487,7 +654,7 @@ const AssociateVehicleForm: React.FC<{
         )}
 
         <Typography variant="subtitle1" gutterBottom>
-          Select Vehicle
+          Selecionar Veículo
         </Typography>
 
         {isLoading ? (
@@ -496,19 +663,19 @@ const AssociateVehicleForm: React.FC<{
           </Box>
         ) : availableVehicles.length === 0 ? (
           <Typography color="textSecondary">
-            No available vehicles. All vehicles are currently rented or in maintenance.
+            Nenhum veículo disponível. Todos os veículos estão alugados ou em manutenção.
           </Typography>
         ) : (
           <>
             <FormControl fullWidth error={!!error}>
-              <InputLabel>Available Vehicles</InputLabel>
+              <InputLabel>Veículos Disponíveis</InputLabel>
               <Select
                 value={selectedVehicleId}
                 onChange={(e) => {
                   setSelectedVehicleId(e.target.value as string);
                   setError('');
                 }}
-                label="Available Vehicles"
+                label="Veículos Disponíveis"
               >
                 {availableVehicles.map((vehicle) => (
                   <MenuItem key={vehicle.id} value={vehicle.id}>
@@ -527,7 +694,7 @@ const AssociateVehicleForm: React.FC<{
             {selectedVehicleId && (
               <Box mt={3}>
                 <Typography variant="subtitle2" gutterBottom>
-                  Selected Vehicle Details
+                  Detalhes do Veículo Selecionado
                 </Typography>
                 {(() => {
                   const vehicle = vehicles.find(v => v.id === selectedVehicleId);
@@ -537,7 +704,7 @@ const AssociateVehicleForm: React.FC<{
                         <Grid container spacing={2}>
                           <Grid item xs={12} sm={6}>
                             <Typography variant="caption" color="textSecondary">
-                              Make & Model
+                              Marca & Modelo
                             </Typography>
                             <Typography variant="body2">
                               {vehicle.brand} {vehicle.model}
@@ -545,7 +712,7 @@ const AssociateVehicleForm: React.FC<{
                           </Grid>
                           <Grid item xs={12} sm={6}>
                             <Typography variant="caption" color="textSecondary">
-                              License Plate
+                              Placa
                             </Typography>
                             <Typography variant="body2">
                               {vehicle.plate}
@@ -553,7 +720,7 @@ const AssociateVehicleForm: React.FC<{
                           </Grid>
                           <Grid item xs={12} sm={6}>
                             <Typography variant="caption" color="textSecondary">
-                              Year
+                              Ano
                             </Typography>
                             <Typography variant="body2">
                               {vehicle.year}
@@ -561,7 +728,7 @@ const AssociateVehicleForm: React.FC<{
                           </Grid>
                           <Grid item xs={12} sm={6}>
                             <Typography variant="caption" color="textSecondary">
-                              Color
+                              Cor
                             </Typography>
                             <Typography variant="body2">
                               {vehicle.color}
@@ -578,14 +745,14 @@ const AssociateVehicleForm: React.FC<{
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>Cancelar</Button>
         <Button 
           onClick={handleSubmit} 
           variant="contained"
           disabled={isLoading || !selectedVehicleId}
           startIcon={<LinkIcon />}
         >
-          Associate Vehicle
+          Associar Veículo
         </Button>
       </DialogActions>
     </Dialog>
@@ -594,62 +761,61 @@ const AssociateVehicleForm: React.FC<{
 
 const CustomersPage: React.FC = () => {
   const theme = useTheme();
-  const createClient = useCreateClient();
-  const updateClient = useUpdateClient();
+  const createCustomer = useCreateCustomer();
+  const updateCustomer = useUpdateCustomer();
+  const deleteCustomer = useDeleteCustomer();
   const [tabValue, setTabValue] = React.useState(0);
-  const [clientFormOpen, setClientFormOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [customerFormOpen, setCustomerFormOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [associateVehicleOpen, setAssociateVehicleOpen] = useState(false);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
-  const handleAddClient = () => {
-    setSelectedClient(null);
-    setClientFormOpen(true);
+  const handleAddCustomer = () => {
+    setSelectedCustomer(null);
+    setCustomerFormOpen(true);
   };
 
-  const handleEditClient = (client: Client) => {
-    setSelectedClient(client);
-    setClientFormOpen(true);
+  const handleEditCustomer = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setCustomerFormOpen(true);
   };
 
-  const handleAssociateVehicle = (client: Client) => {
-    setSelectedClient(client);
+  const handleAssociateVehicle = (customer: Customer) => {
+    setSelectedCustomer(customer);
     setAssociateVehicleOpen(true);
   };
 
-  const handleClientFormClose = () => {
-    setClientFormOpen(false);
+  const handleCustomerFormClose = () => {
+    setCustomerFormOpen(false);
   };
 
   const handleAssociateVehicleClose = () => {
     setAssociateVehicleOpen(false);
   };
 
-  const handleClientSubmit = async (data: any) => {
+  const handleCustomerSubmit = async (data: CustomerFormData) => {
     try {
-      if (selectedClient) {
-        await updateClient.mutateAsync({
-          id: selectedClient.id,
+      if (selectedCustomer) {
+        await updateCustomer.mutateAsync({
+          id: selectedCustomer.id,
           data
         });
       } else {
-        await createClient.mutateAsync(data);
+        await createCustomer.mutateAsync(data);
       }
-      setClientFormOpen(false);
+      setCustomerFormOpen(false);
     } catch (error) {
-      console.error('Error saving client:', error);
+      console.error('Error saving customer:', error);
     }
   };
 
-  const handleAssociateVehicleSubmit = async (clientId: string, vehicleId: string) => {
+  const handleAssociateVehicleSubmit = async (customerId: string, vehicleId: string) => {
     try {
-      // In a real app, this would call an API to associate the vehicle with the client
-      console.log(`Associating vehicle ${vehicleId} with client ${clientId}`);
-      
-      // For the purpose of this demo, we'll just close the dialog
+      // TODO: Implement vehicle association
+      console.log(`Associating vehicle ${vehicleId} with customer ${customerId}`);
       setAssociateVehicleOpen(false);
     } catch (error) {
       console.error('Error associating vehicle:', error);
@@ -660,14 +826,14 @@ const CustomersPage: React.FC = () => {
     <Box sx={{ p: 3 }}>
       <Box sx={{ mb: 3, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { sm: 'center' }, gap: 2 }}>
         <Typography variant="h4" fontWeight="bold">
-          Clients
+          Clientes
         </Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={handleAddClient}
+          onClick={handleAddCustomer}
         >
-          Add Client
+          Adicionar Cliente
         </Button>
       </Box>
 
@@ -679,27 +845,27 @@ const CustomersPage: React.FC = () => {
           textColor="primary"
           variant="fullWidth"
         >
-          <Tab label="All Clients" />
-          <Tab label="Active" />
-          <Tab label="Inactive" />
+          <Tab label="Todos os Clientes" />
+          <Tab label="Ativos" />
+          <Tab label="Inativos" />
         </Tabs>
       </Card>
 
       <CustomersList 
-        onEdit={handleEditClient}
+        onEdit={handleEditCustomer}
         onAssociateVehicle={handleAssociateVehicle}
       />
 
-      <ClientForm
-        open={clientFormOpen}
-        client={selectedClient}
-        onClose={handleClientFormClose}
-        onSubmit={handleClientSubmit}
+      <CustomerForm
+        open={customerFormOpen}
+        customer={selectedCustomer}
+        onClose={handleCustomerFormClose}
+        onSubmit={handleCustomerSubmit}
       />
 
       <AssociateVehicleForm
         open={associateVehicleOpen}
-        client={selectedClient}
+        customer={selectedCustomer}
         onClose={handleAssociateVehicleClose}
         onSubmit={handleAssociateVehicleSubmit}
       />
