@@ -56,7 +56,7 @@ import { formatDate, formatPhoneNumber } from '../../../utils/formatters';
 import { useVehicles } from '../../../services/vehicleService';
 
 
-const ClientsList: React.FC<{
+const CustomersList: React.FC<{
   onEdit: (client: Client) => void;
   onAssociateVehicle: (client: Client) => void;
 }> = ({ onEdit, onAssociateVehicle }) => {
@@ -685,7 +685,7 @@ const CustomersPage: React.FC = () => {
         </Tabs>
       </Card>
 
-      <ClientsList 
+      <CustomersList 
         onEdit={handleEditClient}
         onAssociateVehicle={handleAssociateVehicle}
       />
