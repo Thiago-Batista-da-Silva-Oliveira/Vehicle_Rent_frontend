@@ -53,12 +53,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
     else {
       return [
         { title: 'Dashboard', path: '/', icon: <DashboardIcon /> },
-        { title: 'Vehicles', path: '/vehicles', icon: <VehiclesIcon /> },
-        { title: 'Clients', path: '/clients', icon: <ClientsIcon /> },
-        { title: 'Calendar', path: '/calendar', icon: <CalendarIcon /> },
-        { title: 'Fine Management', path: '/fine_management', icon: <ReportIcon /> },
-        { title: 'Map', path: '/map', icon: <MapIcon /> },
-        { title: 'Collection', path: '/collection', icon: <MoneyIcon /> },
+        { title: 'Veículos', path: '/vehicles', icon: <VehiclesIcon /> },
+        { title: 'Clientes', path: '/clients', icon: <ClientsIcon /> },
+        { title: 'Calendário', path: '/calendar', icon: <CalendarIcon /> },
+        { title: 'Gestão de Multas', path: '/fine_management', icon: <ReportIcon /> },
+        { title: 'Mapa', path: '/map', icon: <MapIcon /> },
+        { title: 'Coleta', path: '/collection', icon: <MoneyIcon /> },
       ]
     }
   }, [user?.role]);

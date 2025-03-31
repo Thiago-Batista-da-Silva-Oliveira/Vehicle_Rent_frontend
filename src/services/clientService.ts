@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api, { mockResponse } from './api';
+import { mockResponse } from './api';
 import { Client, ClientFormData } from '../types/Client';
 
 // Mock data for development
