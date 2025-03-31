@@ -89,8 +89,6 @@ const UsersList: React.FC<UsersListProps> = ({ users, onEdit, onDelete }) => {
             <TableRow>
               <TableCell>Usuário</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Função</TableCell>
-              <TableCell>Tenant</TableCell>
               <TableCell>Status</TableCell>
               <TableCell align="right">Ações</TableCell>
             </TableRow>
@@ -107,8 +105,6 @@ const UsersList: React.FC<UsersListProps> = ({ users, onEdit, onDelete }) => {
                   </Box>
                 </TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>{user.roleId}</TableCell>
-                <TableCell>{user.tenantId}</TableCell>
                 <TableCell>
                   <Typography
                     color={user.active ? 'success.main' : 'error.main'}

@@ -63,7 +63,7 @@ const UserForm: React.FC<UserFormProps> = ({ open, user, onClose, onSubmit }) =>
     if (!formData.name) newErrors.name = 'Nome é obrigatório';
     if (!formData.email) newErrors.email = 'Email é obrigatório';
     if (!formData.roleId) newErrors.roleId = 'Função é obrigatória';
-    if (!formData.tenantId) newErrors.tenantId = 'Tenant é obrigatório';
+    if (!formData?.tenantId) newErrors.tenantId = 'Tenant é obrigatório';
     if (!user && !(formData as CreateUserData).password) {
       newErrors.password = 'Senha é obrigatória';
     }

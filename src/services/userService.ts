@@ -39,6 +39,7 @@ export interface UpdateUserData {
   email?: string;
   roleId?: string;
   active?: boolean;
+  tenantId?: string;
 }
 
 export interface GetUsersParams {
