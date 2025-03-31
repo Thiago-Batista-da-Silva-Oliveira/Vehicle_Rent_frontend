@@ -1,7 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import { Can } from '../../../components/can';
-import { Settings } from '@mui/icons-material';
-
+import Settings from './Settings';
 export default function SettingsRoutes ()  {
   return (
     <>

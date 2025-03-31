@@ -1,6 +1,7 @@
 export type UserRole = 'admin' | 'user' | 'master';
 
-export type UserPermission = 'dashboard' | 'users' | 'cars' | 'rentals' | 'settings';
+
+export type UserPermission = 'create:tenant' | 'delete:role' | 'update:user' | 'create:user' | 'read:role' | 'read:tenant' | 'update:role' | 'update:vehicle' | 'create:vehicle' | 'delete:user' | 'create:role' | 'update:tenant' | 'read:vehicle' | 'read:user' | 'delete:tenant' | 'delete:vehicle'
 
 export interface User {
     id: string;

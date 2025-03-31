@@ -11,7 +11,6 @@ import {
   FormControlLabel,
   Grid,
   Divider,
-  useTheme,
   Avatar,
   TextField,
   IconButton,
@@ -92,7 +91,6 @@ const ColorCircle: React.FC<{
 };
 
 const Settings: React.FC = () => {
-  const theme = useTheme();
   const { colorMode, accentColor, setColorMode, setAccentColor } = useSettingsStore();
   const { user } = useAuthStore();
   const [tabValue, setTabValue] = React.useState(0);
