@@ -22,6 +22,7 @@ import {
   Settings as SettingsIcon,
   Report as ReportIcon,
   Money as MoneyIcon,
+  Person as PersonIcon,
 } from '@mui/icons-material';
 import useAuthStore from '../../store/authStore';
 
@@ -55,6 +56,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
         { title: 'Dashboard', path: '/', icon: <DashboardIcon /> },
         { title: 'Veículos', path: '/vehicles', icon: <VehiclesIcon /> },
         { title: 'Clientes', path: '/clients', icon: <ClientsIcon /> },
+        { title: 'Usuários', path: '/users', icon: <PersonIcon /> },
         { title: 'Calendário', path: '/calendar', icon: <CalendarIcon /> },
         { title: 'Gestão de Multas', path: '/fine_management', icon: <ReportIcon /> },
         { title: 'Mapa', path: '/map', icon: <MapIcon /> },
