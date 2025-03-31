@@ -68,6 +68,7 @@ export default function UsersPage() {
   const handleFormSubmit = async (data: CreateUserData | UpdateUserData) => {
     try {
       if (selectedUser) {
+        delete data.tenantId;
         await updateUser.mutateAsync({ id: selectedUser.id, data: data as UpdateUserData });
       } else {
         await createUser.mutateAsync(data as CreateUserData);

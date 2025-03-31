@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Button,
   Dialog,
@@ -35,14 +35,36 @@ const UserForm: React.FC<UserFormProps> = ({ open, user, onClose, onSubmit }) =>
     reset,
   } = useForm<UserFormData>({
     defaultValues: {
-      name: user?.name || '',
-      email: user?.email || '',
+      name: '',
+      email: '',
       password: '',
-      roleId: user?.roleId || '',
-      tenantId: user?.tenantId || '',
-      active: user?.active ?? true,
+      roleId: '',
+      tenantId: '',
+      active: true,
     },
   });
+
+  useEffect(() => {
+    if (user) {
+      reset({
+        name: user.name,
+        email: user.email,
+        password: '',
+        roleId: user.roleId,
+        tenantId: user.tenantId,
+        active: user.active,
+      });
+    } else {
+      reset({
+        name: '',
+        email: '',
+        password: '',
+        roleId: '',
+        tenantId: '',
+        active: true,
+      });
+    }
+  }, [user, reset]);
 
   const handleFormSubmit = (data: UserFormData) => {
     onSubmit({
