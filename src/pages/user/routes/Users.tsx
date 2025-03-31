@@ -12,6 +12,7 @@ import {
   DialogContent,
   DialogActions,
   CircularProgress,
+  Card,
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from '../../../services/userService';
@@ -107,12 +108,15 @@ export default function UsersPage() {
         </Button>
       </Box>
 
-      <Paper sx={{ mb: 3 }}>
-        <Tabs value={selectedTab} onChange={handleTabChange}>
+     
+      <Card sx={{ mb: 3 }}>
+      <Tabs value={selectedTab} onChange={handleTabChange} indicatorColor="primary"
+          textColor="primary"
+          variant="fullWidth">
           <Tab label="Ativos" />
           <Tab label="Inativos" />
         </Tabs>
-      </Paper>
+      </Card>
 
       <UsersList
         users={filteredUsers}
