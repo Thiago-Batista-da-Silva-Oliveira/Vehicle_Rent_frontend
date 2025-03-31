@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Button,
   Dialog,
@@ -13,171 +13,193 @@ import {
   FormControlLabel,
   Switch,
   Typography,
-  SelectChangeEvent,
   MenuItem,
 } from '@mui/material';
+import { useForm, Controller } from 'react-hook-form';
 import { User, CreateUserData, UpdateUserData } from '../../../services/userService';
+
+type UserFormData = CreateUserData | UpdateUserData;
 
 interface UserFormProps {
   open: boolean;
   user?: User | null;
   onClose: () => void;
-  onSubmit: (data: CreateUserData | UpdateUserData) => void;
+  onSubmit: (data: UserFormData) => void;
 }
 
 const UserForm: React.FC<UserFormProps> = ({ open, user, onClose, onSubmit }) => {
-  const [formData, setFormData] = useState<CreateUserData | UpdateUserData>({
-    name: user?.name || '',
-    email: user?.email || '',
-    password: '',
-    roleId: user?.roleId || '',
-    tenantId: user?.tenantId || '',
-    active: user?.active ?? true,
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<UserFormData>({
+    defaultValues: {
+      name: user?.name || '',
+      email: user?.email || '',
+      password: '',
+      roleId: user?.roleId || '',
+      tenantId: user?.tenantId || '',
+      active: user?.active ?? true,
+    },
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    if (name) {
-      setFormData(prev => ({ ...prev, [name]: value }));
-      if (errors[name]) {
-        setErrors(prev => ({ ...prev, [name]: '' }));
-      }
-    }
-  };
-
-  const handleSelectChange = (e: SelectChangeEvent) => {
-    const { name, value } = e.target;
-    if (name) {
-      setFormData(prev => ({ ...prev, [name]: value }));
-      if (errors[name]) {
-        setErrors(prev => ({ ...prev, [name]: '' }));
-      }
-    }
-  };
-
-  const handleSubmit = () => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!formData.name) newErrors.name = 'Nome é obrigatório';
-    if (!formData.email) newErrors.email = 'Email é obrigatório';
-    if (!formData.roleId) newErrors.roleId = 'Função é obrigatória';
-    if (!formData?.tenantId) newErrors.tenantId = 'Tenant é obrigatório';
-    if (!user && !(formData as CreateUserData).password) {
-      newErrors.password = 'Senha é obrigatória';
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    onSubmit(formData);
+  const handleFormSubmit = (data: UserFormData) => {
+    onSubmit({
+      ...data,
+      tenantId: 'a0a179d0-2bd4-4854-aba1-1cbd6cf9e9f3',
+      roleId: '7b537e62-6346-4582-8790-0288dc8f81c6',
+    });
     onClose();
+    reset();
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{user ? 'Editar Usuário' : 'Novo Usuário'}</DialogTitle>
-      <DialogContent>
-        <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
-            <TextField
-              name="name"
-              label="Nome"
-              value={formData.name}
-              onChange={handleTextChange}
-              fullWidth
-              error={!!errors.name}
-              helperText={errors.name}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              name="email"
-              label="Email"
-              type="email"
-              value={formData.email}
-              onChange={handleTextChange}
-              fullWidth
-              error={!!errors.email}
-              helperText={errors.email}
-            />
-          </Grid>
-          {!user && (
+      <form onSubmit={handleSubmit(handleFormSubmit)}>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12}>
-              <TextField
-                name="password"
-                label="Senha"
-                type="password"
-                value={(formData as CreateUserData).password}
-                onChange={handleTextChange}
-                fullWidth
-                error={!!errors.password}
-                helperText={errors.password}
+              <Controller
+                name="name"
+                control={control}
+                rules={{ required: 'Nome é obrigatório' }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Nome"
+                    fullWidth
+                    error={!!errors.name}
+                    helperText={errors.name?.message}
+                  />
+                )}
               />
             </Grid>
-          )}
-          <Grid item xs={12}>
-            <FormControl fullWidth error={!!errors.roleId}>
-              <InputLabel>Função</InputLabel>
-              <Select
-                name="roleId"
-                value={formData.roleId}
-                onChange={handleSelectChange}
-                label="Função"
-              >
-                <MenuItem value="admin">Administrador</MenuItem>
-                <MenuItem value="manager">Gerente</MenuItem>
-                <MenuItem value="staff">Funcionário</MenuItem>
-              </Select>
-              {errors.roleId && (
-                <Typography color="error" variant="caption">
-                  {errors.roleId}
-                </Typography>
-              )}
-            </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            <FormControl fullWidth error={!!errors.tenantId}>
-              <InputLabel>Tenant</InputLabel>
-              <Select
-                name="tenantId"
-                value={formData.tenantId}
-                onChange={handleSelectChange}
-                label="Tenant"
-              >
-                <MenuItem value="tenant-1">Tenant 1</MenuItem>
-                <MenuItem value="tenant-2">Tenant 2</MenuItem>
-                <MenuItem value="tenant-3">Tenant 3</MenuItem>
-              </Select>
-              {errors.tenantId && (
-                <Typography color="error" variant="caption">
-                  {errors.tenantId}
-                </Typography>
-              )}
-            </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={formData.active}
-                  onChange={(e) => setFormData(prev => ({ ...prev, active: e.target.checked }))}
+            <Grid item xs={12}>
+              <Controller
+                name="email"
+                control={control}
+                rules={{ 
+                  required: 'Email é obrigatório',
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Email inválido'
+                  }
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Email"
+                    type="email"
+                    fullWidth
+                    error={!!errors.email}
+                    helperText={errors.email?.message}
+                  />
+                )}
+              />
+            </Grid>
+            {!user && (
+              <Grid item xs={12}>
+                <Controller
+                  name="password"
+                  control={control}
+                  rules={{ 
+                    required: 'Senha é obrigatória',
+                    minLength: {
+                      value: 6,
+                      message: 'A senha deve ter no mínimo 6 caracteres'
+                    }
+                  }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Senha"
+                      type="password"
+                      fullWidth
+                      error={!!(errors as any).password}
+                      helperText={(errors as any).password?.message}
+                    />
+                  )}
                 />
-              }
-              label="Ativo"
-            />
+              </Grid>
+            )}
+            <Grid item xs={12}>
+              <Controller
+                name="roleId"
+                control={control}
+                rules={{ required: 'Função é obrigatória' }}
+                render={({ field }) => (
+                  <FormControl fullWidth error={!!errors.roleId}>
+                    <InputLabel>Função</InputLabel>
+                    <Select
+                      {...field}
+                      label="Função"
+                    >
+                      <MenuItem value="admin">Administrador</MenuItem>
+                      <MenuItem value="manager">Gerente</MenuItem>
+                      <MenuItem value="staff">Funcionário</MenuItem>
+                    </Select>
+                    {errors.roleId && (
+                      <Typography color="error" variant="caption">
+                        {errors.roleId.message}
+                      </Typography>
+                    )}
+                  </FormControl>
+                )}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Controller
+                name="tenantId"
+                control={control}
+                rules={{ required: 'Tenant é obrigatório' }}
+                render={({ field }) => (
+                  <FormControl fullWidth error={!!errors.tenantId}>
+                    <InputLabel>Tenant</InputLabel>
+                    <Select
+                      {...field}
+                      label="Tenant"
+                    >
+                      <MenuItem value="tenant-1">Tenant 1</MenuItem>
+                      <MenuItem value="tenant-2">Tenant 2</MenuItem>
+                      <MenuItem value="tenant-3">Tenant 3</MenuItem>
+                    </Select>
+                    {errors.tenantId && (
+                      <Typography color="error" variant="caption">
+                        {errors.tenantId.message}
+                      </Typography>
+                    )}
+                  </FormControl>
+                )}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Controller
+                name="active"
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={field.value}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                      />
+                    }
+                    label="Ativo"
+                  />
+                )}
+              />
+            </Grid>
           </Grid>
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancelar</Button>
-        <Button onClick={handleSubmit} variant="contained">
-          {user ? 'Atualizar' : 'Criar'}
-        </Button>
-      </DialogActions>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Cancelar</Button>
+          <Button type="submit" variant="contained">
+            {user ? 'Atualizar' : 'Criar'}
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 };

@@ -24,6 +24,7 @@ import {
   Person as PersonIcon,
 } from '@mui/icons-material';
 import { User } from '../../../services/userService';
+import useAuthStore from '../../../store/authStore';
 
 interface UsersListProps {
   users: User[];
@@ -35,6 +36,7 @@ const UsersList: React.FC<UsersListProps> = ({ users, onEdit, onDelete }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const { user: currentUser } = useAuthStore();
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>, user: User) => {
     setAnchorEl(event.currentTarget);
@@ -61,8 +63,9 @@ const UsersList: React.FC<UsersListProps> = ({ users, onEdit, onDelete }) => {
   };
 
   const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    user.id !== currentUser?.id &&
+    (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
