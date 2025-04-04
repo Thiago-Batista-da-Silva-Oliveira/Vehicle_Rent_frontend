@@ -304,6 +304,12 @@ export default function ProfileForm({ open, role, onClose, onSubmit }: ProfileFo
     return action.charAt(0).toUpperCase() + action.slice(1);
   };
 
+  const handleFormSubmit = (data: ProfileFormValues) => {
+    onSubmit(data);
+    onClose();
+    reset();
+  };
+
   if (isLoadingRole && role?.id) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -322,6 +328,7 @@ export default function ProfileForm({ open, role, onClose, onSubmit }: ProfileFo
         <DialogTitle>
             {role ? 'Editar Perfil' : 'Criar Perfil'}
         </DialogTitle>
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
     <DialogContent>
       <Paper sx={{ p: 3, mb: 3 }}>
         <Grid container spacing={2} alignItems="center" mb={3}>
@@ -505,6 +512,7 @@ export default function ProfileForm({ open, role, onClose, onSubmit }: ProfileFo
         </Paper>
       </Paper>
     </DialogContent>
+    </form>
     <DialogActions>
           <Button onClick={onClose}>Cancelar</Button>
           <Button 
