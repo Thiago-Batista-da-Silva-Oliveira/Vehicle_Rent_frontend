@@ -15,58 +15,59 @@ import {
   Typography,
   Avatar,
   InputAdornment,
+  alpha,
+  useTheme,
 } from '@mui/material';
 import {
   MoreVert as MoreVertIcon,
   Search as SearchIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Person as PersonIcon,
 } from '@mui/icons-material';
-import { User } from '../../../services/userService';
 import useAuthStore from '../../../store/authStore';
-import { alpha, useTheme } from '@mui/material/styles';
-interface UsersListProps {
-  users: User[];
-  onEdit: (user: User) => void;
-  onDelete: (user: User) => void;
+import { Role } from '../routes/Roles';
+
+interface RolesListProps {
+  roles: Role[];
+  onEdit: (role: Role) => void;
+  onDelete: (role: Role) => void;
 }
 
-const UsersList: React.FC<UsersListProps> = ({ users, onEdit, onDelete }) => {
+const RolesList: React.FC<RolesListProps> = ({ roles, onEdit, onDelete }) => {
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const { user: currentUser } = useAuthStore();
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>, user: User) => {
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>, role: Role) => {
     setAnchorEl(event.currentTarget);
-    setSelectedUser(user);
+    setSelectedRole(role);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    setSelectedUser(null);
+    setSelectedRole(null);
   };
 
   const handleEdit = () => {
-    if (selectedUser) {
-      onEdit(selectedUser);
+    if (selectedRole) {
+      onEdit(selectedRole);
       handleMenuClose();
     }
   };
 
   const handleDelete = () => {
-    if (selectedUser) {
-      onDelete(selectedUser);
+    if (selectedRole) {
+      onDelete(selectedRole);
       handleMenuClose();
     }
   };
 
-  const filteredUsers = users.filter(user =>
-    user.id !== currentUser?.id &&
-    (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredRoles = roles.filter(role =>
+    role.id !== currentUser?.id &&
+    (role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    role.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -74,7 +75,7 @@ const UsersList: React.FC<UsersListProps> = ({ users, onEdit, onDelete }) => {
       <TextField
         fullWidth
         variant="outlined"
-        placeholder="Buscar usuários..."
+        placeholder="Buscar perfis..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         sx={{ mb: 2 }}
@@ -91,35 +92,25 @@ const UsersList: React.FC<UsersListProps> = ({ users, onEdit, onDelete }) => {
         <Table>
           <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
             <TableRow>
-              <TableCell>Usuário</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell>Perfil</TableCell>
+              <TableCell>Descrição</TableCell>
               <TableCell align="right">Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredUsers.map((user) => (
-              <TableRow key={user.id}>
+            {filteredRoles.map((role) => (
+              <TableRow key={role.id}>
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
-                      {user.name.charAt(0).toUpperCase()}
+                      {role.name.charAt(0).toUpperCase()}
                     </Avatar>
-                    <Typography>{user.name}</Typography>
+                    <Typography>{role.name}</Typography>
                   </Box>
                 </TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  <Typography
-                    color={user.active ? 'success.main' : 'error.main'}
-                    sx={{ display: 'flex', alignItems: 'center' }}
-                  >
-                    <PersonIcon sx={{ mr: 1, fontSize: 16 }} />
-                    {user.active ? 'Ativo' : 'Inativo'}
-                  </Typography>
-                </TableCell>
+                <TableCell>{role.description}</TableCell>
                 <TableCell align="right">
-                  <IconButton onClick={(e) => handleMenuClick(e, user)}>
+                  <IconButton onClick={(e) => handleMenuClick(e, role)}>
                     <MoreVertIcon />
                   </IconButton>
                 </TableCell>
@@ -145,4 +136,4 @@ const UsersList: React.FC<UsersListProps> = ({ users, onEdit, onDelete }) => {
   );
 };
 
-export default UsersList; 
+export default RolesList; 
