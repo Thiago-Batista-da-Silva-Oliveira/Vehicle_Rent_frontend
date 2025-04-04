@@ -10,6 +10,12 @@ name: string;
 tenantId: string;
 roleId?: string;
 permissions?: string[];
+permissionsWithIds?: {
+    id: string;
+    slug: string;
+    name: string;
+    description: string;
+  }[];
 }
 
 export const login = async (credentials: LoginCredentials): Promise<IOutput> => {

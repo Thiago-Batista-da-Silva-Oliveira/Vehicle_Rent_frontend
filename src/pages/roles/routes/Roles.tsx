@@ -10,6 +10,9 @@ import {
 import { Add as AddIcon } from '@mui/icons-material';
 import RolesList from '../components/RolesList';
 import { useState } from 'react';
+import RolesForm from '../components/RolesForm';
+import { useCreateRole, useUpdateRole } from '../../../services/rolesService';
+
 interface CreateRoleRequest {
   name: string;
   description: string;
@@ -44,11 +47,13 @@ export interface Role {
 
 export default function RolesPage() {
   const isLoading = false;
-  const [roles, setRoles] = useState<Role[]>([]);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedTab, setSelectedTab] = useState(0);
+
+  const createRoleMutation = useCreateRole();
+  const updateRoleMutation = useUpdateRole();
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
   };
@@ -67,10 +72,35 @@ export default function RolesPage() {
     setSelectedRole(role);
   };
 
-  const filteredRoles = roles.filter(role =>
-    role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    role.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleFormSubmit = async (data: {
+    name: string;
+    description: string;
+    permissionIds: string[];
+  }) => {
+    try {
+      if (selectedRole?.id) {
+        await updateRoleMutation.mutateAsync({
+          id: selectedRole.id,
+          name: data.name,
+          description: data.description,
+          companyId: selectedRole.companyId,
+          permissions: data.permissionIds
+        });
+        
+      } else {
+        await createRoleMutation.mutateAsync({
+          name: data.name,
+          description: data.description,
+          companyId: selectedRole?.companyId || '',
+          permissions: data.permissionIds
+        });
+      }
+
+      setIsFormOpen(false);
+    } catch (error) {
+      console.error('Erro ao salvar perfil:', error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -89,7 +119,7 @@ export default function RolesPage() {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => {}}
+          onClick={handleAddRole}
         >
           Novo Perfil
         </Button>
@@ -103,9 +133,14 @@ export default function RolesPage() {
         </Tabs>
       </Card>
       <RolesList
-        roles={filteredRoles}
         onEdit={handleEditRole}
         onDelete={handleDeleteRole}
+      />
+      <RolesForm
+        open={isFormOpen}
+        role={selectedRole || undefined}
+        onClose={() => setIsFormOpen(false)}
+        onSubmit={handleFormSubmit}
       />
     </Box>
   );

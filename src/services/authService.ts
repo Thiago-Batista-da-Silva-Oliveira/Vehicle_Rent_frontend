@@ -10,6 +10,12 @@ interface LoginResponse {
   tenantId: string;
   roleId: string;
   permissions: string[];
+  permissionsWithIds: {
+    id: string;
+    slug: string;
+    name: string;
+    description: string;
+  }[];
 }
 
 interface RefreshTokenRequest {

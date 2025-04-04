@@ -9,7 +9,7 @@ import useAuthStore from "./store/authStore";
 import { NotificationProvider } from "./hooks/useNotification";
 
 // Create a react-query client
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,

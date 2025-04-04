@@ -1,7 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import api from './api';
 import { Customer, CustomerFormData, CustomerDocument, GetCustomersParams } from '../types/Customer';
 import useNotification from '../hooks/useNotification';
+import { queryClient } from '../App';
 
 // API interfaces
 export interface CustomerApiResponse {
@@ -214,7 +215,6 @@ export const useCustomer = (id: string) => {
 };
 
 export const useCreateCustomer = () => {
-  const queryClient = useQueryClient();
   const notification = useNotification();
   
   return useMutation<Customer, Error, CustomerFormData>({
@@ -230,7 +230,6 @@ export const useCreateCustomer = () => {
 };
 
 export const useUpdateCustomer = () => {
-  const queryClient = useQueryClient();
   const notification = useNotification();
   
   return useMutation<Customer, Error, { id: string; data: Partial<CustomerFormData> }>({
@@ -247,7 +246,6 @@ export const useUpdateCustomer = () => {
 };
 
 export const useDeleteCustomer = () => {
-  const queryClient = useQueryClient();
   const notification = useNotification();
   
   return useMutation<void, Error, string>({
@@ -276,7 +274,6 @@ export const useCustomerDocuments = (customerId: string) => {
 };
 
 export const useUploadCustomerDocument = () => {
-  const queryClient = useQueryClient();
   const notification = useNotification();
   
   return useMutation<CustomerDocument, Error, { customerId: string; document: File }>({
@@ -292,7 +289,6 @@ export const useUploadCustomerDocument = () => {
 };
 
 export const useVerifyCustomerDocument = () => {
-  const queryClient = useQueryClient();
   const notification = useNotification();
   
   return useMutation<
@@ -313,7 +309,6 @@ export const useVerifyCustomerDocument = () => {
 };
 
 export const useDeleteCustomerDocument = () => {
-  const queryClient = useQueryClient();
   const notification = useNotification();
   
   return useMutation<void, Error, { customerId: string; documentId: string }>({

@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import {
-  Box,
   Typography,
   Button,
   Dialog,

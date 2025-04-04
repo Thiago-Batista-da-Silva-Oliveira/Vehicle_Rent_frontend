@@ -28,12 +28,12 @@ import useAuthStore from '../../../store/authStore';
 import { Role } from '../routes/Roles';
 
 interface RolesListProps {
-  roles: Role[];
   onEdit: (role: Role) => void;
   onDelete: (role: Role) => void;
 }
 
-const RolesList: React.FC<RolesListProps> = ({ roles, onEdit, onDelete }) => {
+const RolesList: React.FC<RolesListProps> = ({ onEdit, onDelete }) => {
+  const roles: Role[] = [];
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

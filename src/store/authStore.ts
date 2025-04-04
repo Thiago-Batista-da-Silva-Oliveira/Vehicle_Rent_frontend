@@ -39,6 +39,12 @@ export const useAuthStore = create<AuthState>()(
               planType: 'free',
               role: 'user',
               permissions: response.permissions as UserPermission[],
+              permissionsWithIds: response.permissionsWithIds as {
+                id: string;
+                slug: string;
+                name: string;
+                description: string;
+              }[],
             },
             token,
           });

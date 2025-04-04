@@ -1,6 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import api from './api';
 import useNotification from '../hooks/useNotification';
+import { queryClient } from '../App';
 
 // API interfaces
 export interface UserApiResponse {
@@ -132,7 +133,6 @@ export const useUser = (id: string) => {
 };
 
 export const useCreateUser = () => {
-  const queryClient = useQueryClient();
   const notification = useNotification();
   
   return useMutation<User, Error, CreateUserData>({
@@ -148,7 +148,6 @@ export const useCreateUser = () => {
 };
 
 export const useUpdateUser = () => {
-  const queryClient = useQueryClient();
   const notification = useNotification();
   
   return useMutation<User, Error, { id: string; data: UpdateUserData }>({
@@ -165,7 +164,6 @@ export const useUpdateUser = () => {
 };
 
 export const useDeleteUser = () => {
-  const queryClient = useQueryClient();
   const notification = useNotification();
   
   return useMutation<void, Error, string>({

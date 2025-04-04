@@ -11,6 +11,12 @@ export interface User {
     tenantId?: string;
     roleId?: string;
     permissions: UserPermission[];
+    permissionsWithIds: {
+        id: string;
+        slug: string;
+        name: string;
+        description: string;
+    }[];
     planType: 'free' | 'pro' | 'enterprise';
     avatar?: string;
     createdAt?: string;

@@ -1,12 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation} from '@tanstack/react-query';
 import api, { mockResponse } from './api';
 import { Vehicle, VehicleFormData } from '../types/Vehicle';
 import useNotification from '../hooks/useNotification';
+import { queryClient } from '../App';
 
-// Mock data for development
-const mockVehicles: Vehicle[] = [];
 
-// API interfaces based on api-routes.md
 export interface VehicleApiResponse {
   id: string;
   plate: string;
@@ -294,7 +292,6 @@ export const useVehicle = (id: string) => {
 };
 
 export const useCreateVehicle = () => {
-  const queryClient = useQueryClient();
   const notification = useNotification();
   
   return useMutation<Vehicle, Error, VehicleFormData>({
@@ -310,7 +307,6 @@ export const useCreateVehicle = () => {
 };
 
 export const useUpdateVehicle = () => {
-  const queryClient = useQueryClient();
   const notification = useNotification();
   
   return useMutation<Vehicle, Error, { id: string; data: Partial<VehicleFormData> }>({
@@ -327,7 +323,6 @@ export const useUpdateVehicle = () => {
 };
 
 export const useDeleteVehicle = () => {
-  const queryClient = useQueryClient();
   const notification = useNotification();
   
   return useMutation<void, Error, string>({
@@ -343,7 +338,6 @@ export const useDeleteVehicle = () => {
 };
 
 export const useUploadVehiclePhotos = () => {
-  const queryClient = useQueryClient();
   const notification = useNotification();
   
   return useMutation<VehiclePhotoResponse[], Error, { id: string; photos: File[] }>({
