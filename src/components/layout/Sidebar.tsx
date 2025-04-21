@@ -57,8 +57,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose, drawerWidth }) => {
       return [
         { title: 'Dashboard', path: '/', icon: <DashboardIcon /> },
         { title: 'Veículos', path: '/vehicles', icon: <VehiclesIcon /> },
-        { title: 'Perfis', path: '/roles', icon: <AssignmentIcon /> },    
         { title: 'Clientes', path: '/clients', icon: <ClientsIcon /> },
+        { title: 'Aluguel', path: '/rentals', icon: <ClientsIcon /> },
+        { title: 'Perfis', path: '/roles', icon: <AssignmentIcon /> },    
         { title: 'Usuários', path: '/users', icon: <PersonIcon /> },
         { title: 'Calendário', path: '/calendar', icon: <CalendarIcon /> },
         { title: 'Gestão de Multas', path: '/fine_management', icon: <ReportIcon /> },

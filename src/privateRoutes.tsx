@@ -12,6 +12,7 @@ const Clients = React.lazy(() => import('./pages/customer/routes/index'));
 const FineManagement = React.lazy(() => import('./pages/fineManagement/routes/index'));
 const Collection = React.lazy(() => import('./pages/collection/routes/index'));
 const Users = React.lazy(() => import('./pages/user/routes/index'));
+const Rentals = React.lazy(() => import('./pages/rental/routes/index'));
 const Roles = React.lazy(() => import('./pages/roles/routes/index'));
 
 const Loading = () => <div>Loading...</div>;
@@ -67,6 +68,14 @@ const protectedRoutesConfig: RouteObject[] = [
         element: (
           <React.Suspense fallback={<Loading />}>
            <Users />
+          </React.Suspense>
+        ),
+      },
+      {
+        path: 'rentals',
+        element: (
+          <React.Suspense fallback={<Loading />}>
+           <Rentals />
           </React.Suspense>
         ),
       },
